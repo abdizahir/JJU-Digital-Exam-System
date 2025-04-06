@@ -6,6 +6,11 @@ $(document).ready(function(){
     $('.loginBtn').click(function(e) {
         e.preventDefault();
         window.location.replace('../homepage.html');
-        console.log('hi');
     });
+    $('.nav-item a').click(function (e) {
+        e.preventDefault();
+        $('.nav-item a').removeClass('active');
+        $(this).addClass('active');
+        console.log('hi');
+    })
 });
