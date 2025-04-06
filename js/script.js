@@ -8,9 +8,12 @@ $(document).ready(function(){
         window.location.replace('../homepage.html');
     });
     $('.nav-item a').click(function (e) {
-        e.preventDefault();
+        localStorage.setItem('activeLink', $(this).attr('href'));
         $('.nav-item a').removeClass('active');
-        $(this).addClass('active');
-        console.log('hi');
+        $(this).addClass('active');   
     })
+    var activeLink = localStorage.getItem('activeLink');
+    if (activeLink) {
+        $('.nav-item a[href="' + activeLink + '"]').click();
+    }
 });
