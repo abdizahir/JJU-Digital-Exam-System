@@ -1,23 +1,54 @@
 @import url(https://fonts.googleapis.com/css?family=Roboto:300);
 
+.login-page-body {
+  background: rgba(175, 221, 229, 1);
+  background: linear-gradient(0deg, rgba(2, 73, 80, 1) 0%, rgba(175, 221, 229, 1) 100%);
+  height: 100vh;
+}
+
 .login-page {
-  width: 360px;
-  padding: 8% 0 0;
-  margin: auto;
+  padding: 1rem;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: #003135;
+  border-radius: 1rem;
+  margin: 0 1rem;
+  padding: 10px;
+  box-shadow:
+    0 0 20px 0 rgba(0, 0, 0, 0.2),
+    0 5px 5px 0 rgba(0, 0, 0, 0.24);
+}
+.logo > img {
+  width: 80px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 0.3em;
+}
+.logo > h1 {
+  font-size: 4rem;
+  font-weight: bold;
+  color: white;
 }
 .form {
   position: relative;
   z-index: 1;
-  background: #FFFFFF;
+  background: #003135;
+  color: #ffffff;
   max-width: 360px;
-  margin: 0 auto 100px;
+  margin: 3rem auto 1rem;
   padding: 45px;
   text-align: center;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-  border-radius: .3em;
+  box-shadow:
+    0 0 20px 0 rgba(0, 0, 0, 0.2),
+    0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  border-radius: 1rem;
 }
 .form input {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   outline: 0;
   background: #f2f2f2;
   width: 100%;
@@ -26,25 +57,27 @@
   padding: 15px;
   box-sizing: border-box;
   font-size: 14px;
-  border-radius: .2em;
+  border-radius: 0.2em;
 }
 .form button {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
   outline: 0;
-  background: #4CAF50;
+  background: #964734;
   width: 100%;
   border: 0;
   padding: 15px;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 14px;
   -webkit-transition: all 0.3 ease;
   transition: all 0.3 ease;
   cursor: pointer;
-  border-radius: .2em;
+  border-radius: 0.2em;
 }
-.form button:hover,.form button:active,.form button:focus {
-  background: #43A047;
+.form button:hover,
+.form button:active,
+.form button:focus {
+  background: #803d2c;
 }
 .form .message {
   margin: 15px 0 0;
@@ -52,7 +85,7 @@
   font-size: 12px;
 }
 .form .message a {
-  color: #4CAF50;
+  color: #ad6d5d;
   text-decoration: none;
 }
 
@@ -65,8 +98,9 @@
   max-width: 300px;
   margin: 0 auto;
 }
-.container:before, .container:after {
-  content: "";
+.container:before,
+.container:after {
+  content: '';
   display: block;
   clear: both;
 }
@@ -90,17 +124,14 @@
   text-decoration: none;
 }
 .container .info span .fa {
-  color: #EF3B3A;
+  color: #ef3b3a;
 }
 body {
   background: #eee;
-  font-family: "Roboto", sans-serif;     
+  font-family: 'Roboto', sans-serif;
 }
 
-
-
 /*  HomePage */
-
 
 .landing {
   padding: 20px;
@@ -110,22 +141,20 @@ body {
   position: relative;
 }
 
-
 .landing .overlay {
-  background-color:rgb(0 0 0 / .6);;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-    top: 0;
-    z-index: 1;
+  background-color: rgb(0 0 0 / 0.6);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 1;
 }
 
 .landing .container {
   position: relative;
   z-index: 1000;
 }
-
 
 .landing .intro-text {
   position: absolute;
@@ -138,6 +167,32 @@ body {
   width: 400px;
 }
 .intro-text h1 {
-  font-size: 40px;    
+  font-size: 40px;
   margin: 0 0 12px;
+}
+
+@media screen and (max-width: 1000px) {
+  /* .logo > img {
+    width: 80px;
+  } */
+  .logo > h1 {
+    font-size: 3.5rem;
+  }
+}
+@media screen and (max-width: 800px) {
+  .logo > h1 {
+    font-size: 2.8rem;
+  }
+}
+@media screen and (max-width: 620px) {
+  .logo > h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+  }
+}
+@media screen and (max-width: 515px) {
+  .logo > h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
 }
