@@ -19,11 +19,11 @@ $(document).ready(function () {
   // }
 });
 
-// home page dropdown menu
+//! home page dropdown menu
 const moreBtn = document.querySelector('.more-btn');
 const moreMenu = document.querySelector('.more');
 
-// Toggle dropdown on button click
+//! Toggle dropdown on button click
 moreBtn.addEventListener('click', (e) => {
   e.stopPropagation(); // prevent triggering document click
   moreMenu.classList.toggle('open');
@@ -31,7 +31,7 @@ moreBtn.addEventListener('click', (e) => {
   moreBtn.classList.toggle('fa-times');
 });
 
-// Close on click outside
+//! Close on click outside
 document.addEventListener('click', (e) => {
   if (!moreMenu.contains(e.target)) {
     moreMenu.classList.remove('open');
@@ -40,14 +40,14 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Close on scroll
+//! Close on scroll
 window.addEventListener('scroll', () => {
   moreMenu.classList.remove('open');
   moreBtn.classList.add('fa-bars');
   moreBtn.classList.remove('fa-times');
 });
 
-// add hidden nav items to the dropdown
+//! Add hidden navbar items to the dropdown
 document.addEventListener('DOMContentLoaded', function () {
   const navMenu = document.querySelector('.nav-menu');
   const dropdownMenu = document.querySelector('.dropdown');
@@ -69,20 +69,8 @@ document.addEventListener('DOMContentLoaded', function () {
   updateDropdown();
 });
 
-//!  navbar
-let lastScrollTop = 0;
-const navbar = document.querySelector('.navbar');
-
-window.addEventListener('scroll', () => {
-  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-  if (scrollTop > lastScrollTop) {
-    // Scrolling down
-    navbar.classList.add('hide');
-  } else {
-    // Scrolling up
-    navbar.classList.remove('hide');
-  }
-
-  lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevent negative scroll
-});
+//
+//
+// ---------------- ADD COMMENTS TO CODE ----------------
+//
+//
