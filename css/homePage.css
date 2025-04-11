@@ -93,13 +93,13 @@ nav {
 }
 
 @media (max-width: 1500px) {
-  li:nth-last-child(2),
-  li:nth-last-child(3) {
+  .nav-menu li:nth-last-child(2),
+  .nav-menu li:nth-last-child(3) {
     display: none;
   }
 }
 @media (max-width: 1300px) {
-  li:nth-last-child(4) {
+  .nav-menu li:nth-last-child(4) {
     display: none;
   }
 }
@@ -492,8 +492,7 @@ nav {
   font-size: 0.85rem;
   color: #94a3b8;
 }
-.footer-section.links {
-}
 .footer-section.links ul {
-  display: inline-block;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
