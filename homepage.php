@@ -8,33 +8,47 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/homePage.css" />
+    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/homepage.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
   <body>
-    <header>
-      <nav>
-        <div class="main-header main-header">
-          <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
-          <a href="#">JIGJIGA UNIVERSITY</a>
+      <nav class="navbar-fixed-top p-3">
+        <div class="container-fluid container-header">
+          <div class="main-header">
+            <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
+            <a  href="homepage.php?=0">JIGJIGA UNIVERSITY</a>
+          </div>
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav d-flex">
+              <li class=""><a href="homepage.php?q=0">HOME</a></li>
+              <li class=""><a href="teacher.php?q=0">TEACHER</a></li>
+              <li class=""><a href="#services">SERVICES</a></li>
+              <li class=""><a href="#developers">DEVELOPERS</a></li>
+              <li class=""><a href="#about">ABOUT</a></li>
+              <li class=""><a href="#contact">CONTACT</a></li>
+              <li class=""><a href="logout.php?q=teacher.php">LOGOUT</a></li>
+              
+              <!-- <li class="more">
+                <span class="more-btn fa fa-bars"></span>
+                <ul class="dropdown"></ul>
+              </li> -->
+            </ul>
+          </div>
         </div>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="#">HOME</a></li>
-          <li class="nav-item"><a href="#">EXAM</a></li>
-          <li class="nav-item"><a href="#">GRADE</a></li>
-          <li class="nav-item"><a href="#services">SERVICES</a></li>
-          <li class="nav-item"><a href="#developers">DEVELOPERS</a></li>
-          <li class="nav-item"><a href="#about">ABOUT</a></li>
-          <li class="nav-item"><a href="#contact">CONTACT</a></li>
-          <li class="nav-item"><a href="/index.html">Logout</a></li>
-          <li class="more">
-            <span class="more-btn fa fa-bars"></span>
-            <ul class="dropdown"></ul>
-          </li>
-        </ul>
       </nav>
-    </header>
     <main>
+    <div class="container-fluid"></div>
       <!-- first  section -->
       <section class="first-section text-center">
         <h1>JJU Online Exam System</h1>

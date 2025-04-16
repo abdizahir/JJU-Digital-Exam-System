@@ -1,0 +1,39 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.log {
+    margin: 10px;
+    margin-right: 60px;
+    margin-left: 5px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 20px;
+    font-size: 15px;
+}
+
+.log1 {
+    font: 15px 'Montserrat', sans-serif;
+    color: #fff;
+    margin-left: 10px;
+}
+
+.header{
+    background: #003135;
+    height: 70px;
+}
+
+
+.top {
+    margin-top: 20px;
+}
+
+.title1 {
+    font: 16px "Century Gothic", "Times Roman", sans-serif;
+}
+
+.panel .table tr td b a {
+    color: #333 !important;
+}
