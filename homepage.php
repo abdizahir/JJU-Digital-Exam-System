@@ -15,26 +15,37 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
   <body>
-    <header>
-      <nav>
-        <div class="main-header main-header">
-          <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
-          <a href="#">JIGJIGA UNIVERSITY</a>
+      <nav class="navbar-fixed-top p-3">
+        <div class="container-fluid container-header">
+          <div class="main-header">
+            <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
+            <a  href="homepage.php?=0">JIGJIGA UNIVERSITY</a>
+          </div>
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav d-flex">
+              <li class=""><a href="homepage.php?q=0">HOME</a></li>
+              <li class=""><a href="teacher.php?q=0">TEACHER</a></li>
+              <li class=""><a href="#services">SERVICES</a></li>
+              <li class=""><a href="#developers">DEVELOPERS</a></li>
+              <li class=""><a href="#about">ABOUT</a></li>
+              <li class=""><a href="#contact">CONTACT</a></li>
+              <li class=""><a href="logout.php?q=teacher.php">LOGOUT</a></li>
+              
+              <!-- <li class="more">
+                <span class="more-btn fa fa-bars"></span>
+                <ul class="dropdown"></ul>
+              </li> -->
+            </ul>
+          </div>
         </div>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="#">HOME</a></li>
-          <li class="nav-item"><a href="#">EXAM</a></li>
-          <li class="nav-item"><a href="#">GRADE</a></li>
-          <li class="nav-item"><a href="#services">SERVICES</a></li>
-          <li class="nav-item"><a href="#developers">DEVELOPERS</a></li>
-          <li class="nav-item"><a href="#about">ABOUT</a></li>
-          <li class="nav-item"><a href="#contact">CONTACT</a></li>
-          <li class="nav-item"><a href="/index.html">Logout</a></li>
-          <li class="more">
-            <span class="more-btn fa fa-bars"></span>
-            <ul class="dropdown"></ul>
-          </li>
-        </ul>
       </nav>
     <main>
     <div class="container-fluid"></div>
@@ -53,12 +64,12 @@
           <div class="col-sm-8">
             <h2 class="section-header">Our Values</h2>
             <br />
-            <p class="strong long">
+            <p class="strong">
               <strong>MISSION:</strong> Our mission is using one platform for
               examinations. Reduce paperwork and offering quick and accurate results.
             </p>
             <br />
-            <p class="strong long">
+            <p class="strong">
               <strong>VISION:</strong> Our vision of Online Exam System is more popularly
               helps for our modern age system. It helps us to use the present technology
               into examiantion system . It can be helpful for quick and accurate
@@ -74,33 +85,36 @@
         <h2 class="section-header">SERVICES</h2>
         <h4 style="color: #964734">What we offer</h4>
         <br />
-        <div class="services-section">
-          <div>
+        <div class="row slideanim offer-section">
+          <div class="col-sm-4">
             <span class="fa fa-user-plus logo-small"></span>
             <h4>e Examination</h4>
             <p>Multiple users One platform</p>
           </div>
-          <div>
+          <div class="col-sm-4">
             <span class="fa fa-usd logo-small"></span>
             <h4>COST OPTIMISED</h4>
             <p>Reduces paper work</p>
           </div>
-          <div>
+          <div class="col-sm-4">
             <span class="fa fa-user logo-small"></span>
             <h4>USER SATISFACTION</h4>
             <p>User satisfaction is our satisfaction..</p>
           </div>
-          <div>
+        </div>
+        <br /><br />
+        <div class="row slideanim offer-section">
+          <div class="col-sm-4">
             <span class="fa fa-leaf logo-small"></span>
             <h4>GREEN</h4>
             <p>Eco friendly</p>
           </div>
-          <div>
+          <div class="col-sm-4">
             <span class="fa fa-certificate logo-small"></span>
             <h4>CERTIFIED</h4>
             <p>Certified from the government of India..</p>
           </div>
-          <div>
+          <div class="col-sm-4">
             <span class="fa fa-envelope logo-small"></span>
             <h4>CONTACT US</h4>
             <p>Contact us directly for help..</p>
@@ -159,7 +173,7 @@
           <div class="col-sm-8 justify">
             <h2 class="section-header">About</h2>
             <br />
-            <h4 class="long-h4">
+            <h4>
               Teachers often spend countless hours preparing, managing, and grading exams.
               Traditionally, teachers had to create exam questions manually, print out
               test papers, and then grade them by hand. This process not only takes a lot
@@ -170,7 +184,7 @@
               system offers a modern solution to these problems.
             </h4>
             <br />
-            <p class="long">
+            <p>
               With a digital system, teachers can create exams quickly using pre-designed
               templates and question sets. Instead of spending hours formatting and
               printing, they can prepare exams in just few minutes. Once the exam is
@@ -256,11 +270,11 @@
 
     <footer class="footer">
       <div class="footer-section logo">
-        <div style="display: flex; gap: 8px; align-items: center">
+        <div style="display: flex; gap: 10px; align-items: center">
           <img src="img/Jijiga_University.png" alt="Jijiga University" />
           <h2>Jigjiga University</h2>
         </div>
-        <p>Empowering Education for the Future</p>
+        <p style="margin: 0.3rem 0">Empowering Education for the Future</p>
       </div>
       <div class="footer-container">
         <div class="footer-section links">
