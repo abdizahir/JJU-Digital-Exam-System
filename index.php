@@ -8,33 +8,121 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <link rel="stylesheet" type="text/css" href="css/homePage.css" />
+    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/homepage.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   </head>
   <body>
-    <header>
-      <nav>
-        <div class="main-header main-header">
-          <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
-          <a href="#">JIGJIGA UNIVERSITY</a>
+      <nav class="navbar-fixed-top p-3">
+        <div class="container-fluid container-header">
+          <div class="main-header">
+            <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
+            <a  href="index.php?">JIGJIGA UNIVERSITY</a>
+          </div>
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav d-flex title1">
+              <li class=""><a href="index.php?">HOME</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#login2">TEACHER</a></li>
+              <li><a href="#" data-toggle="modal" data-target="#myModal">STUDENT</a></li>
+              <li class=""><a href="#services">SERVICES</a></li>
+              <li class=""><a href="#developers">DEVELOPERS</a></li>
+              <li class=""><a href="#about">ABOUT</a></li>
+              <li class=""><a href="#contact">CONTACT</a></li>        
+              
+              <!-- <li class="more">
+                <span class="more-btn fa fa-bars"></span>
+                <ul class="dropdown"></ul>
+              </li> -->
+            </ul>
+          </div>
         </div>
-        <ul class="nav-menu">
-          <li class="nav-item"><a href="#">HOME</a></li>
-          <li class="nav-item"><a href="#">EXAM</a></li>
-          <li class="nav-item"><a href="#">GRADE</a></li>
-          <li class="nav-item"><a href="#services">SERVICES</a></li>
-          <li class="nav-item"><a href="#developers">DEVELOPERS</a></li>
-          <li class="nav-item"><a href="#about">ABOUT</a></li>
-          <li class="nav-item"><a href="#contact">CONTACT</a></li>
-          <li class="nav-item"><a href="/index.html">Logout</a></li>
-          <li class="more">
-            <span class="more-btn fa fa-bars"></span>
-            <ul class="dropdown"></ul>
-          </li>
-        </ul>
       </nav>
-    </header>
     <main>
+    <div class="container-fluid"></div>
+    <!----Teacher signin--->
+    <div class="modal fade" id="login2">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <h4 class="modal-title"><span style="color:#f4511e;font-family:Montserrat, sans-serif; font-size: 20px !important;letter-spacing: 4px; "><b>LOGIN -TEACHER</b></span></h4>
+          </div>
+          <div class="modal-body title1">
+            <div class="row">
+              <div class="col-md-3"></div>
+                <div class="col-md-6">
+                  <form role="form" method="post" action="admin.php?q=index.php">
+                    <div class="form-group">
+                    <input type="text" name="uname" maxlength="20"  placeholder="Teacher user id" class="form-control"/> 
+                    </div>
+                    <div class="form-group">
+                    <input type="password" name="password" maxlength="15" placeholder="Password" class="form-control"/>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">Log in</button>
+                    </div>
+                  </form>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
+          </div>
+          <!--<div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>-->
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- Container (USERS section) -->
+<!--sign in modal start-->
+<div class="modal fade" id="myModal">
+  <div class="modal-dialog">
+    <div class="modal-content title1">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title title1"><span style="color:#f4511e;font-family:Montserrat, sans-serif; font-size: 20px !important;letter-spacing: 4px; "><b>LOGIN -STUDENT</b></span></h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" action="login.php?q=index.php" method="POST">
+          <fieldset>
+            <!-- Text input-->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="email"></label>  
+              <div class="col-md-6">
+              <input name="email" placeholder="Enter your email-id" class="form-control input-md" type="email">
+                
+              </div>
+            </div>
+            <!-- Password input-->
+            <div class="form-group">
+              <label class="col-md-3 control-label" for="password"></label>
+              <div class="col-md-6">
+                <input name="password" placeholder="Enter your Password" class="form-control input-md" type="password">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Log in</button>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<!--sign in modal closed-->
+
       <!-- first  section -->
       <section class="first-section text-center">
         <h1>JJU Online Exam System</h1>
