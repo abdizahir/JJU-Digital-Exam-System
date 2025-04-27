@@ -38,7 +38,7 @@ CREATE TABLE `admin` (
 --
 
 INSERT INTO `admin` (`email`, `password`, `role`) VALUES
-('head@gmail.com', 'head', 'head');
+('head@gmail.com', 'head', 'admin'); -- changed the role to admin
 
 -- --------------------------------------------------------
 

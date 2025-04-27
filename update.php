@@ -182,7 +182,7 @@ $q=mysqli_query($con,"UPDATE `history` SET `score`=$s,`level`=$sn,`wrong`=$w, da
 if($sn != $total)
 {
 $sn++;
-header("location:account.php?q=quiz&step=2&eid=$eid&n=$sn&t=$total")or die('Error152');
+header("location:student.php?q=quiz&step=2&eid=$eid&n=$sn&t=$total")or die('Error152');
 }
 else if( $_SESSION['key']!='prasanth123')
 {
@@ -206,11 +206,11 @@ $sun=$row['score'];
 $sun=$s+$sun;
 $q=mysqli_query($con,"UPDATE `rank` SET `score`=$sun ,time=NOW() WHERE email= '$email'")or die('Error174');
 }
-header("location:account.php?q=result&eid=$eid");
+header("location:student.php?q=result&eid=$eid");
 }
 else
 {
-header("location:account.php?q=result&eid=$eid");
+header("location:student.php?q=result&eid=$eid");
 }
 }
 
@@ -232,7 +232,7 @@ $sun=$row['score'];
 }
 $sun=$sun-$s;
 $q=mysqli_query($con,"UPDATE `rank` SET `score`=$sun ,time=NOW() WHERE email= '$email'")or die('Error174');
-header("location:account.php?q=quiz&step=2&eid=$eid&n=1&t=$t");
+header("location:student.php?q=quiz&step=2&eid=$eid&n=1&t=$t");
 }
 
 
