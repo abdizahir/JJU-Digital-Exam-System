@@ -18,7 +18,6 @@ textarea {
   outline: none !important;
   padding-block: 2rem !important;
   background-color: #ede8f5 !important;
-  /* padding-top: ; */
 }
 
 /*! -------------------- NAVBAR ------------------- */
@@ -163,7 +162,7 @@ textarea {
 /*! ---------------- STUDENT PAGE MAIN --------------- */
 .main-container {
   margin-top: 70px;
-  margin-left: 70px; /* Same as the sidebar's width */
+  margin-left: 70px;
   padding: 20px;
 }
 .filter-form-container {
@@ -179,9 +178,6 @@ textarea {
   align-items: center;
   gap: 3rem;
 }
-/* @media (min-width: 600px) {
-  
-} */
 .move-right {
  margin-left: 210px;
 }
@@ -222,14 +218,14 @@ textarea {
   position: fixed;
   top: 0;
   left: 0;
-  width: 200px; /* Adjust the width as needed */
-  height: 100vh; /* Full viewport height */
-  background-color: #f8f9fa; /* Light gray background */
-  border-left: 1px solid #dee2e6; /* Subtle left border */
+  width: 200px; 
+  height: 100vh; 
+  background-color: #f8f9fa; 
+  border-left: 1px solid #dee2e6; 
   padding: 90px 5px 0 5px;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* Optional shadow */
-  z-index: 10; /* Ensure it stays above other elements */
-  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); 
+  z-index: 10; 
+  overflow-y: auto;
 }
 .side-nav-big {
   width: 200px;
@@ -252,7 +248,7 @@ textarea {
 .side-nav-links li a {
   display: flex;
   align-items: center;
-  color: #343a40; /* Dark text color */
+  color: #343a40; 
   text-decoration: none;
   font-weight: 500;
   padding: 8px 12px;
@@ -262,8 +258,8 @@ textarea {
 
 .side-nav-links li a:hover,
 .side-nav-links li.active a {
-  background-color: #e9ecef; /* Light hover background */
-  color: #3d52a0; /* Bootstrap primary color */
+  background-color: #e9ecef; 
+  color: #3d52a0; 
 }
 
 .side-nav-links li a .glyphicon {
@@ -271,17 +267,17 @@ textarea {
 }
 /* table */
 @media (max-width: 1024px) {
-  /* Hide 'Negative' column */
-  .section-panel .exam-table tr td:nth-child(6),
-  .section-panel .exam-table tr th:nth-child(6) {
+  /* Hide 'NO.' column */
+  .section-panel .exam-table tr td:nth-child(1),
+  .section-panel .exam-table tr th:nth-child(1) {
     display: none;
   }
 }
 
 @media (max-width: 900px) {
-  /* Hide 'Positive' column */
-  .section-panel .exam-table tr td:nth-child(5),
-  .section-panel .exam-table tr th:nth-child(5) {
+  /* Hide 'Marks per Question' column */
+  .section-panel .exam-table tr td:nth-child(4),
+  .section-panel .exam-table tr th:nth-child(4) {
     display: none;
   }
   /* Teacher 'Total Question' column */
@@ -303,9 +299,9 @@ textarea {
 }
 
 @media (max-width: 768px) {
-  /* Hide 'Marks' column */
-  .section-panel .exam-table tr td:nth-child(4),
-  .section-panel .exam-table tr th:nth-child(4) {
+  /* Hide 'Total Marks' column */
+  .section-panel .exam-table tr td:nth-child(5),
+  .section-panel .exam-table tr th:nth-child(5) {
     display: none;
   }
   /* Teacher 'Date' column */
@@ -355,12 +351,6 @@ textarea {
 
 
 @media (max-width: 500px) {
-  /* Hide 'No.' column */
-  .section-panel .exam-table tr td:nth-child(1),
-  .section-panel .exam-table tr th:nth-child(1) {
-    display: none;
-  }
-
   /* Hide right and wrong columns */
   .section-panel .history-table tr td:nth-child(4),
   .section-panel .history-table tr th:nth-child(4) {
@@ -391,7 +381,6 @@ textarea {
     display: none;
   }
 }
-
 /* table end */
 
 
@@ -418,18 +407,6 @@ textarea {
   padding: 20px 0;
   text-align: center;
 }
-
-/*! main image  */
-/* .main-image-container {
-  position: relative;
-  z-index: -5;
-}
-.main-image {
-  position: absolute;
-  top: -89px;
-  width: 100%;
-  height: 100vh;
-} */
 
 /*! all sections */
 .section-panel {
@@ -478,13 +455,13 @@ textarea {
     padding: 20px 0;
   }
 }
+.btn-container {
+  color: #ede8f5;
+}
 .btn-container:hover {
   text-decoration: none;
+  color: #ede8f5;
 }
-/* .section-container {
-  margin: 50px 0;
-  padding: 0 4rem;
-} */
 .section-header {
   color: #3d52a0;
   font-size: 3rem;
@@ -537,7 +514,6 @@ textarea {
   font-weight: bold;
 }
 .first-section p {
-  /* color: #7091e6; */
   color: #8697c4;
 }
 @media (max-width: 700px) {
@@ -807,7 +783,6 @@ textarea {
   z-index: 1;
   top: -4px;
   left: 40px;
-  /* margin-left: -60px; */
 
   opacity: 0;
   transition: opacity 0.3s;
@@ -816,8 +791,6 @@ textarea {
 .tooltip1 .tooltip-text::after {
   content: "";
   position: absolute;
-  /* top: 100%;
-  left: 50%; */
   top: 30%;
   left: -5px;
   transform: rotate(90deg);

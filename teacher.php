@@ -20,13 +20,14 @@
     include_once 'dbConnection.php';
     session_start();
 
-    if (! isset($_SESSION['email'])) {
+    if (! isset($_SESSION['email']) || $_SESSION['role'] !== 'teacher') {
         header("Location: index.php");
         exit();
     }
 
     $name  = $_SESSION['name'];
     $email = $_SESSION['email'];
+    $teacher_id = $_SESSION['id'];
     ?>
     <nav class="navbar navbar-fixed-top">
         <div class="main-header">
@@ -51,6 +52,7 @@
                     </div>
 
                     <!-- Navigation Links -->
+                     <!-- TODO: add a tooltip -->
                     <div class="" style="padding: 0;" id="">
                         <ul class="side-nav-links">
                             <li <?php if(@$_GET['q']==0) echo'class="active"'; ?>>
@@ -72,7 +74,6 @@
                                 <div class="sidenav-txt side-nav-text">&nbsp;Ranking</div>
                             </a>
                         </li>
-                        <!-- TODO: Add Feedback -->
                 <!---- <li <?php if(@$_GET['q']==3) echo'class="active"'; ?>><a href="teacher.php?q=3">Feedback</a></li>  ---->
                         <li <?php if(@$_GET['q']==4) echo'class="active"'; ?>>
                             <a href="teacher.php?q=4">
@@ -106,7 +107,7 @@
             <!-- home Start -->
 <?php
 if (@$_GET['q'] == 0) {
-    $result = mysqli_query($con, "SELECT * FROM quiz WHERE email='$email' ORDER BY date DESC") or die('Error');
+    $result = mysqli_query($con, "SELECT * FROM exam WHERE email='$email' ORDER BY date DESC") or die('Error');
 ?>
     <div class="section-panel">
         <table class="t-exam-table table title1" style="border:none">
@@ -126,15 +127,13 @@ if (@$_GET['q'] == 0) {
                 while ($row = mysqli_fetch_array($result)) {
                     $title = $row['title'];
                     $total = $row['total'];
-                    $sahi = $row['sahi'];
+                    $mark = $row['mark'];
                     $time = $row['time'];
                     $eid = $row['eid'];
 
-                    // Check if this user already attempted the quiz
                     $q12 = mysqli_query($con, "SELECT score FROM history WHERE eid='$eid' AND email='$email'") or die('Error98');
                     $rowcount = mysqli_num_rows($q12);
 
-                    // Count total students who attempted this quiz
                     $student_query = mysqli_query($con, "SELECT COUNT(DISTINCT email) AS student_count FROM history WHERE eid='$eid'") or die('Error99');
                     $student_data = mysqli_fetch_array($student_query);
                     $student_count = $student_data['student_count'];
@@ -144,11 +143,11 @@ if (@$_GET['q'] == 0) {
                         <td>
                             <?php echo $title; ?>
                             <?php if ($rowcount != 0) { ?>
-                                <span title="This quiz has already been solved by you" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                                <span title="This exam has already been solved by you" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
                             <?php } ?>
                         </td>
                         <td><?php echo $total; ?></td>
-                        <td><?php echo ($sahi * $total); ?></td>
+                        <td><?php echo ($mark * $total); ?></td>
                         <td><?php echo $time; ?> min</td>
                         <td><?php echo $student_count; ?></td>
                     </tr>
@@ -162,18 +161,15 @@ if (@$_GET['q'] == 0) {
 }
 ?>
 <!-- Home End -->
-<!-- TODO: finish teacher page and add a tooltip to the side nav -->
 
 
+            <!--  Score Details Start -->
 <?php
-            // Score Details Start
 if (@$_GET['q'] == 1) {
 
-    // Fetch all distinct titles and colleges for the dropdowns
-    $titles_result = mysqli_query($con, "SELECT DISTINCT title FROM quiz WHERE email='$email'") or die('Error fetching titles');
+    $titles_result = mysqli_query($con, "SELECT DISTINCT title FROM exam WHERE email='$email'") or die('Error fetching titles');
     $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
 
-    // Get selected filters if exist
     $selected_title = isset($_GET['filter_title']) ? $_GET['filter_title'] : '';
     $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
 
@@ -207,16 +203,17 @@ if (@$_GET['q'] == 1) {
                     </select>
                 </div>
                 <button type="submit" class="primary-button">Filter</button>
-                <a href="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>?q=1" class="btn-container" style="margin-left:5px;">
-                    <button class="warn-button">Reset</button>
-                </a>
+                <a href="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>?q=1" class="warn-button btn-container" style="margin-left:5px;">
+    Reset
+</a>
+
             </form>
         </div>
 
         <?php
         // Base query
         $query = "SELECT DISTINCT q.title, u.name, u.college, h.score, h.date 
-                  FROM user u, history h, quiz q 
+                  FROM user u, history h, exam q 
                   WHERE q.email='$email' 
                   AND q.eid=h.eid 
                   AND h.email=u.email";
@@ -273,10 +270,8 @@ if (@$_GET['q'] == 1) {
 
             // Ranking Start
 if (@$_GET['q'] == 2) {
-    // Fetch all distinct colleges for the dropdown
     $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
 
-    // Get selected filter if it exists
     $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
 
     echo '<div class="section-panel title">';
@@ -290,7 +285,7 @@ if (@$_GET['q'] == 2) {
                 <select name="filter_college" id="filter_college" class="form-control">
                     <option value="">All Colleges</option>';
 
-    // Display the college options in the dropdown
+    // college options in the dropdown
     while ($row = mysqli_fetch_array($colleges_result)) {
         $college = $row['college'];
         $selected = ($college == $selected_college) ? 'selected' : '';
@@ -300,15 +295,13 @@ if (@$_GET['q'] == 2) {
     echo '</select>
           </div>
           <button type="submit" class="primary-button">Filter</button>
-          <a href="' . htmlspecialchars($_SERVER['PHP_SELF']) . '?q=2" class="btn-container" style="margin-left:5px;"><button class="warn-button">Reset</button></a>
+          <a href="' . htmlspecialchars($_SERVER['PHP_SELF']) . '?q=2" class="btn-container" style="margin-left:5px;"><button class="warn-button" style="padding: 8px 15px;">Reset</button></a>
           </form> </div>';
 
-    // Base query for ranking, considering college filter
     $query = "SELECT r.email, r.score
               FROM rank r
               ORDER BY r.score DESC";
 
-    // Apply filter for college if selected
     if (!empty($selected_college)) {
         $query = "SELECT r.email, r.score
                   FROM rank r, user u
@@ -319,7 +312,7 @@ if (@$_GET['q'] == 2) {
 
     $q = mysqli_query($con, $query) or die('Error223');
 
-    // Display the ranking table
+    // Ranking table
     echo '<table class="table t-ranking-table table-striped title1">
             <tr style="color:#3d52a0;">
             <td><b>Rank</b></td><td>
@@ -360,93 +353,72 @@ if (@$_GET['q'] == 2) {
             ?>
             <!--ranking end-->
 
-            <!--add quiz-->
+            <!--add exam-->
             <?php
                 if(isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step']))
                 {
                 echo ' 
                 <div class="section-panel title">
-                    <div class="row">
-                        <span class="title1" style="color:#3d52a0;display:flex;justify-content:center;font-size:30px;"><b>Enter Exam Details</b></span><br />
-                        <br />
-                        <div>   
-                <form class="form-horizontal title1" name="form" action="update.php?q=addquiz" style="padding:20px; align-items: center;"  method="POST">
-                <fieldset class="add-exam-form">
+  <div class="row">
+    <span class="title1" style="color:#3d52a0; display:flex; justify-content:center; font-size:30px;">
+      <b>Enter Exam Details</b>
+    </span>
+    
+    <form class="form-horizontal title1" name="form" action="update.php?q=addExam" style="padding:20px; align-items:center;" method="POST">
+      <fieldset class="add-exam-form">
+      
+        <!-- Exam Title -->
+        <div class="form-group">
+          <label class="col-md-12" for="name">Title:</label>
+          <div class="col-md-12">
+            <input id="name" name="name" placeholder="Enter Exam title" class="form-control input-md" type="text">
+          </div>
+        </div>
 
+        <!-- Total Questions -->
+        <div class="form-group">
+          <label class="col-md-12" for="total">Total number of questions:</label>
+          <div class="col-md-12">
+            <input id="total" name="total" placeholder="Enter total number of questions" class="form-control input-md" type="number">
+          </div>
+        </div>
 
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="name">Title:</label>  
-                <div class="col-md-12">
-                <input id="name" name="name" placeholder="Enter Quiz title" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
+        <!-- Marks per Correct Answer -->
+        <div class="form-group">
+          <label class="col-md-12" for="right">Marks on right answer:</label>
+          <div class="col-md-12">
+            <input id="right" name="right" placeholder="Enter marks on right answer" class="form-control input-md" min="0" type="number">
+          </div>
+        </div>
 
+        <!-- Time Limit -->
+        <div class="form-group">
+          <label class="col-md-12" for="time">Time Limit:</label>
+          <div class="col-md-12">
+            <input id="time" name="time" placeholder="Enter time limit for test in minute" class="form-control input-md" min="1" type="number">
+          </div>
+        </div>
 
+        </fieldset>
 
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="total">Total number of questions:</label>  
-                <div class="col-md-12">
-                <input id="total" name="total" placeholder="Enter total number of questions" class="form-control input-md" type="number">
-                    
-                </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="right">Marks on right answer:</label>  
-                <div class="col-md-12">
-                <input id="right" name="right" placeholder="Enter marks on right answer" class="form-control input-md" min="0" type="number">
-                    
-                </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="wrong">Marks on wrong answer:</label>  
-                <div class="col-md-12">
-                <input id="wrong" name="wrong" value="0" placeholder="Enter minus marks on wrong answer without sign" class="form-control input-md" min="0" type="number">
-                    
-                </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="time">Time Limit:</label>  
-                <div class="col-md-12">
-                <input id="time" name="time" placeholder="Enter time limit for test in minute" class="form-control input-md" min="1" type="number">
-                    
-                </div>
-                </div>
-
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12" for="tag">Tag:</label>  
-                <div class="col-md-12">
-                <input id="tag" name="tag" placeholder="Enter #tag which is used for searching" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
-
-
-                </fieldset>
-                
-                <!-- Text input-->
-                <div class="form-group" style="margin-top:25px;padding-inline: 16px;">
-                <label class="col-md-12 for="desc">Description:</label>  
-                <textarea rows="8" cols="8" name="desc" class="form-control" placeholder="Write description here..."></textarea>  
-                </div>
-                    
-                <div class="form-group" style="justify-items:center;margin-top:40px">
-                    <button  type="submit" class="primary-button" style:"font-size:20px">Submit</button>
-                </div>
-                </form></div></div></div>';
+        <!-- Description -->
+        <div class="form-group" style="margin-top:25px; padding-inline:16px;">
+          <label class="col-md-12" for="desc">Description:</label>
+          <textarea id="desc" name="desc" rows="8" cols="8" class="form-control" placeholder="Write description here..."></textarea>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="form-group" style="justify-items:center; margin-top:40px;">
+          <button type="submit" class="primary-button" style="font-size:20px;">Submit</button>
+        </div>
+    </form>
+  </div>
+</div>
+';
                 }
             ?>
-            <!--add quiz end-->
-            <!--add quiz step2 start-->
+            <!--add exam end-->
+            <!--add exam step2 start-->
             <?php
                 if(@$_GET['q']==4 && (@$_GET['step'])==2 ){
                 echo ' 
@@ -516,11 +488,11 @@ if (@$_GET['q'] == 2) {
                 </fieldset>
                 </form></div>';
                 }
-                ?><!--add quiz step 2 end-->
-            <!--remove quiz-->
+                ?><!--add exam step 2 end-->
+            <!--remove exam-->
             <?php if(@$_GET['q']==5) {
 
-                $result = mysqli_query($con,"SELECT * FROM quiz where email='$email' ORDER BY date DESC") or die('Error');
+                $result = mysqli_query($con,"SELECT * FROM exam where email='$email' ORDER BY date DESC") or die('Error');
                 echo  '<div class="section-panel">
                 <table class="table t-remove-table table-striped title1">
                     <tr>
@@ -535,12 +507,12 @@ if (@$_GET['q'] == 2) {
                 while($row = mysqli_fetch_array($result)) {
                     $title = $row['title'];
                     $total = $row['total'];
-                    $sahi = $row['sahi'];
+                    $mark = $row['mark'];
                 $time = $row['time'];
                     $eid = $row['eid'];
-                    echo '<tr><td>'.$c++.'</td><td>'.$title.'</td><td>'.$total.'</td><td>'.$sahi*$total.'</td><td>'.$time.'&nbsp;min</td>
+                    echo '<tr><td>'.$c++.'</td><td>'.$title.'</td><td>'.$total.'</td><td>'.$mark*$total.'</td><td>'.$time.'&nbsp;min</td>
                     <td><b>
-                    <a href="update.php?q=rmquiz&eid='.$eid.'" class="pull-right btn-container">
+                    <a href="update.php?q=rmExam&eid='.$eid.'" class="pull-right btn-container">
                     <div class="danger-button"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;<span class="title1"><b>Remove</b></span></div>
                     </a>
                     </b></td></tr>';
@@ -560,13 +532,13 @@ if (@$_GET['q'] == 2) {
     const elements = document.querySelectorAll('.sidenav-txt');
     const main = document.getElementById('main');
 
-    // Define the media query
+    // Media query
     const mediaQuery = window.matchMedia('(min-width: 992px)');
 
-    // Function to handle the media query change
+    // Media query change
     function handleMediaQuery(e) {
         if (e.matches) {
-            // Viewport is at least 992px wide
+            // At least 992px
             sidebar.classList.add('side-nav-big');
             sidebar.classList.remove('side-nav-small');
             button.classList.remove('glyphicon-chevron-right');
@@ -576,7 +548,7 @@ if (@$_GET['q'] == 2) {
             });
             main.classList.add('move-right');
         } else {
-            // Viewport is less than 992px wide
+            // Less than 992px
             sidebar.classList.remove('side-nav-big');
             sidebar.classList.add('side-nav-small');
             button.classList.remove('glyphicon-chevron-left');
@@ -588,13 +560,11 @@ if (@$_GET['q'] == 2) {
         }
     }
 
-    // Initial check
     handleMediaQuery(mediaQuery);
 
-    // Listen for changes in the viewport size
+    // Listen for changes in screen size
     mediaQuery.addListener(handleMediaQuery);
 
-    // Toggle functionality
     button.addEventListener('click', function() {
         sidebar.classList.toggle('side-nav-small');
         sidebar.classList.toggle('side-nav-big');

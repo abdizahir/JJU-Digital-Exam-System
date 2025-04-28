@@ -6,18 +6,12 @@ if (isset($_SESSION["email"])) {
 
 include_once 'dbConnection.php';
 
-$ref=@$_GET['q'];
 $email = $_POST['email'];
 $password = $_POST['password'];
-$role = $_POST['role'];  // Get role (student or teacher)
 
-$role === 'student' ? 
-$query = "SELECT name FROM user WHERE email = '$email' AND password = '$password'" : 
-$query = "SELECT email FROM admin WHERE email = '$email' and password = '$password'";
-
+$query = "SELECT name, role FROM user WHERE email = '$email' AND password = '$password'";
 
 $result = mysqli_query($con, $query);
-// $result = mysqli_query($con, $query2);
 
 if (!$result) {
     echo json_encode(['success' => false, 'message' => 'Database error.']);
@@ -27,27 +21,28 @@ if (!$result) {
 $count = mysqli_num_rows($result);
 
 if ($count === 1) {
-	// Redirect based on the selected role
+    $row = mysqli_fetch_assoc($result);
+    $name = $row['name'];
+    $role = $row['role']; 
+
+    $_SESSION["name"] = $name;
+    $_SESSION["key"] = 'prasanth123';
+    $_SESSION["email"] = $email;
+    $_SESSION["role"] = $role;
+
     if ($role === 'student') {
-		while ($row = mysqli_fetch_array($result)) {
-			$name = $row['name'];
-		}
-		
-		$_SESSION["name"] = $name;
-		$_SESSION["key"] ='prasanth123';
-		$_SESSION["email"] = $email;
-        $redirect = 'student.php?q=1'; // Redirect to the student page
+        $redirect = 'student.php?q=1';
+    } else if ($role === 'teacher') {
+        $redirect = 'teacher.php?q=0';
     } else {
-		$_SESSION["name"] = 'Teacher';
-		$_SESSION["key"] ='prasanth123';
-		$_SESSION["email"] = $email;
-        $redirect = "teacher.php?q=0";   // Redirect to the teacher page
+        echo json_encode(['success' => false, 'message' => 'Invalid user role.']);
+        exit;
     }
 
     echo json_encode(['success' => true, 'redirect' => $redirect]);
 
 } else {
-    echo json_encode(['success' => false, 'message' => 'Wrong username or password.']);
+    echo json_encode(['success' => false, 'message' => 'Wrong email or password.']);
 }
 
 exit;

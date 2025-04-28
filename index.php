@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>JJU Digital Exam System Proposal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <!-- <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>"> -->
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -57,20 +56,6 @@
                                     <div class="col-md-6">
                                         <input id="password" type="password" name="password"
                                             placeholder="Enter your Password..." class="form-control input-md" required>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label class="col-md-4 control-label" style='color:#3d52a0'>User type: </label>
-                                    <br />
-                                    <div class="col-md-4">
-                                        <label style='color:#4e5770'>
-                                            <input type="radio" name="role" value="student" checked required>
-                                            Student
-                                        </label>
-                                        <label style='color:#4e5770'>
-                                            <input type="radio" name="role" value="teacher" required>
-                                            Teacher
-                                        </label>
                                     </div>
                                 </div>
                                 <div id="error-message" class=""></div>
@@ -290,7 +275,6 @@
         <div class="footer-container">
             <div class="links">
                 <h3>Quick Links</h3>
-                <!-- TODO: fix this (not showing all items) -->
                 <ul>
                     <li><a href="#">HOME</a></li>
                     <li><a href="#">EXAM</a></li>
