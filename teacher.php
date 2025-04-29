@@ -62,6 +62,12 @@
                                     <span class="sr-only">(current)</span>
                                 </a>
                             </li>
+                            <li <?php if(@$_GET['q']==6) echo'class="active"'; ?>>
+                                <a href="teacher.php?q=6">
+                                    <span class="glyphicon glyphicon-user bigger-icons" aria-hidden="true"></span>
+                                    <div class="sidenav-txt side-nav-text">&nbsp;View Students</div>
+                                </a>
+                            </li>
                         <li <?php if(@$_GET['q']==1) echo'class="active"'; ?>>
                             <a href="teacher.php?q=1">
                                 <span class="glyphicon glyphicon-star bigger-icons" aria-hidden="true"></span>
@@ -161,6 +167,89 @@ if (@$_GET['q'] == 0) {
 }
 ?>
 <!-- Home End -->
+
+<!-- View Students Start -->
+<?php if (@$_GET['q'] == 6): ?>
+    <div class="section-panel">
+        <div class="search-table" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <!-- Search Input (left) -->
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="studentSearch">Search:</label>
+                <input type="text" id="studentSearch" class="form-control" placeholder="Search by name...">
+            </div>
+            
+            <!-- Filter Select (right) -->
+            <select id="departmentFilter" class="form-control" style="width: 200px;">
+                <option value="">All Departments</option>
+                <?php
+                // Fetch distinct departments for the filter
+                $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'student' ORDER BY department ASC") or die('Error fetching departments');
+                while ($dept_row = mysqli_fetch_array($dept_result)) {
+                    $department = htmlspecialchars($dept_row['department']);
+                    echo "<option value=\"$department\">$department</option>";
+                }
+                ?>
+            </select>
+        </div>
+
+        <table class="t-student-table table title1" id="studentsTable">
+            <thead>
+                <tr style="color: #3d52a0;">
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>College</th>
+                    <th>Department</th>
+                    <th>Phone</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'student' ORDER BY id ASC") or die('Error fetching students');
+                while ($row = mysqli_fetch_array($result)) {
+                    echo '<tr>';
+                    echo '<td>' . $row['id'] . '</td>';
+                    echo '<td>' . htmlspecialchars($row['name']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['email']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['college']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['department']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
+                    echo '</tr>';
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('studentSearch');
+            const departmentFilter = document.getElementById('departmentFilter');
+            const rows = document.querySelectorAll('#studentsTable tbody tr');
+
+            function filterTable() {
+                const searchValue = searchInput.value.toLowerCase();
+                const selectedDept = departmentFilter.value.toLowerCase();
+
+                rows.forEach(row => {
+                    const name = row.children[1].textContent.toLowerCase();
+                    const department = row.children[4].textContent.toLowerCase();
+                    
+                    const matchesSearch = name.includes(searchValue);
+                    const matchesDepartment = selectedDept === '' || department === selectedDept;
+
+                    row.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
+                });
+            }
+
+            searchInput.addEventListener('keyup', filterTable);
+            departmentFilter.addEventListener('change', filterTable);
+        });
+    </script>
+<?php endif; ?>
+<!-- View Students End -->
+
+
 
 
             <!--  Score Details Start -->
@@ -576,6 +665,7 @@ if (@$_GET['q'] == 2) {
         main.classList.toggle('move-right');
     });
 });
+
 
     </script>
     <script src="js/jquery-3.7.1.slim.js"></script>

@@ -6,17 +6,21 @@ SET time_zone = "+00:00";
 CREATE TABLE `user` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `email` varchar(50) NOT NULL,
-  `password` varchar(18) DEFAULT NULL,
-  `name` varchar(50) DEFAULT NULL,
+  `password` varchar(18) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `fatherName` varchar(50) DEFAULT NULL,
   `gender` ENUM('M', 'F') NOT NULL,
   `college` varchar(100) DEFAULT NULL,
+  `department` VARCHAR(100) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
-  `role` ENUM('student', 'teacher') DEFAULT 'student'
+  `role` ENUM('student', 'teacher', 'header') DEFAULT 'student',
+  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
-INSERT INTO `user` (`id`,`email`, `password`, `name`, `gender`, `college`, `phone`, `role`) VALUES
-(1,'teacher@gmail.com', 'teacher','Teacher1', 'M', 'IOT','0123456', 'teacher'), 
-(1000,'student@gmail.com', 'student','Student1', 'M', 'IOT','0123457', 'student'); 
+INSERT INTO `user` (`id`,`email`, `password`, `name`, `fatherName`, `gender`, `college`, `department`, `phone`, `role`, `date`) VALUES
+(1,'teacher@gmail.com', 'teacher','Teacher1', '', 'M', 'IOT', '','0123456', 'teacher', NOW()), 
+(500,'header@gmail.com', 'header','header1', '', 'M', 'IOT', '','84151', 'header', NOW()), 
+(1000,'student@gmail.com', 'student','Student1', '', 'M', 'IOT', 'IT','0123457', 'student', NOW()); 
 
 -- ------------ Answer Table ---------------
 CREATE TABLE `answer` (

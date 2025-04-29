@@ -111,7 +111,12 @@ textarea {
   font-size: 18px; 
   color: #3d52a0;
 }
-
+.search-table {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 10px;
+}
 @media (max-width: 800px) {
   .main-header h1 {
     font-size: 28px;
@@ -126,6 +131,14 @@ textarea {
   }
   .login-container .secondary-button {
     font-size: 14px;
+  }
+  .search-table {
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+  }
+  .search-table select {
+    justify-self: end;
   }
 }
 @media (max-width: 500px) {
@@ -161,8 +174,8 @@ textarea {
 
 /*! ---------------- STUDENT PAGE MAIN --------------- */
 .main-container {
-  margin-top: 70px;
-  margin-left: 70px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   padding: 20px;
 }
 .filter-form-container {
@@ -333,6 +346,11 @@ textarea {
   .section-panel .t-remove-table tr th:nth-child(3) {
     display: none;
   }
+  /* Teacher 'Collage' column */
+  .section-panel .t-student-table tr td:nth-child(4),
+  .section-panel .t-student-table tr th:nth-child(4) {
+    display: none;
+  }
 }
 
 @media (max-width: 660px) {
@@ -372,12 +390,22 @@ textarea {
   .section-panel .t-exam-table tr th:nth-child(4) {
     display: none;
   }
+  /* Teacher 'Email' column */
+  .section-panel .t-student-table tr td:nth-child(3),
+  .section-panel .t-student-table tr th:nth-child(3) {
+    display: none;
+  }
 }
 
 @media (max-width: 400px) {
   /* Hide No. column */
   .section-panel .history-table tr td:nth-child(1),
   .section-panel .history-table tr th:nth-child(1) {
+    display: none;
+  }
+  /* Teacher 'Phone' column */
+  .section-panel .t-student-table tr td:nth-child(5),
+  .section-panel .t-student-table tr th:nth-child(5) {
     display: none;
   }
 }

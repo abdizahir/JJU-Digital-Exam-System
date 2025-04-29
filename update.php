@@ -230,6 +230,46 @@ $q=mysqli_query($con,"UPDATE `rank` SET `score`=$sun ,time=NOW() WHERE email= '$
 header("location:student.php?q=exam&step=2&eid=$eid&n=1&t=$t");
 }
 
+// Delete Student
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
+  $id = intval($_POST['id']);
+  $stmt = mysqli_prepare($con, "DELETE FROM user WHERE id = ? AND role = 'student'");
+  mysqli_stmt_bind_param($stmt, 'i', $id);
+  if (mysqli_stmt_execute($stmt)) {
+      echo 'success';
+  } else {
+      echo 'error';
+  }
+}
+// ADD Student
+if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
+
+  // Retrieve form inputs
+  $name = $_POST['name'];
+  $fatherName = $_POST['fatherName'];
+  $email = $_POST['email'];
+  $password = $_POST['password'];
+  $gender = $_POST['gender'];
+  $college = $_POST['college'];
+  $department = $_POST['department'];
+  $phone = $_POST['phone'];
+  $role = 'student'; // Default role
+
+  // Prepare and execute insert query
+  $query = "INSERT INTO user (email, password, name, fatherName, gender, college, department, phone, role) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  $stmt = $con->prepare($query);
+  $stmt->bind_param("sssssssss", $email, $password, $name, $fatherName, $gender, $college, $department, $phone, $role);
+
+  if ($stmt->execute()) {
+      echo "<script>alert('Student added successfully.'); window.location.href='header.php?q=0';</script>";
+  } else {
+      echo "<script>alert('Error adding student: " . $stmt->error . "'); window.location.href='index.php?q=4';</script>";
+  }
+
+  $stmt->close();
+  $con->close();
+}
 
 
 ?>
