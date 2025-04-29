@@ -7,7 +7,7 @@ if(isset($_SESSION['key'])){
 if(@$_GET['fdid'] && $_SESSION['key']=='prasanth123') {
 $id=@$_GET['fdid'];
 $result = mysqli_query($con,"DELETE FROM feedback WHERE id='$id' ") or die('Error');
-header("location:headdash.php?q=3");
+header("location:admin.php?q=3");
 }
 }
 
@@ -18,7 +18,7 @@ $demail=@$_GET['demail'];
 $r1 = mysqli_query($con,"DELETE FROM rank WHERE email='$demail' ") or die('Error');
 $r2 = mysqli_query($con,"DELETE FROM history WHERE email='$demail' ") or die('Error');
 $result = mysqli_query($con,"DELETE FROM user WHERE email='$demail' ") or die('Error');
-header("location:headdash.php?q=1");
+header("location:admin.php?q=1");
 }
 }
 
@@ -28,8 +28,19 @@ if(isset($_SESSION['key'])){
 if(@$_GET['demail1'] && $_SESSION['key']=='prasanth123') {
 $demail1=@$_GET['demail1'];
 
-$result = mysqli_query($con,"DELETE FROM admin WHERE email='$demail1' and role ='admin' ") or die('Error');
-header("location:headdash.php?q=5");
+$result = mysqli_query($con,"DELETE FROM user WHERE email='$demail1' and role ='teacher' ") or die('Error');
+header("location:admin.php?q=5");
+}
+}
+
+//delete head
+
+if(isset($_SESSION['key'])){
+if(@$_GET['demail1'] && $_SESSION['key']=='prasanth123') {
+$demail1=@$_GET['demail1'];
+
+$result = mysqli_query($con,"DELETE FROM user WHERE email='$demail1' and role ='head' ") or die('Error');
+header("location:admin.php?q=7");
 }
 }
 

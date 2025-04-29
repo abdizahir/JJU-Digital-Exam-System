@@ -708,7 +708,7 @@ textarea {
 
 /*! -------------------- SLIDE ANIMATIONS ------------------- */
 .slideanim {
-  visibility: hidden;
+  /* visibility: hidden; */
 }
 .slide {
   animation-name: slide;
@@ -820,4 +820,10 @@ textarea {
 }
 .dropdown option:hover {
   background-color: #ede8f5;
+}
+
+input[type='radio'] { 
+  transform: scale(2); 
+  margin: 0 1em;
+  font-size: 3em;
 }
