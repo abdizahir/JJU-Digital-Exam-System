@@ -3,18 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Header</title>
+    <title>Admin</title>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
     />
-<!-- Bootstrap JS -->
-
-<link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
-<link rel="stylesheet" href="css/bootstrap-theme.min.css?v=<?php echo time(); ?>">
-<link rel="stylesheet" href="css/style.css?php echo time(); ?>">
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
 
@@ -22,7 +20,7 @@
     include_once 'dbConnection.php';
     session_start();
 
-    if (! isset($_SESSION['email']) || $_SESSION['role'] !== 'header') {
+    if (! isset($_SESSION['email']) || $_SESSION['role'] !== 'admin') {
         header("Location: index.php");
         exit();
     }
@@ -30,7 +28,6 @@
     $name  = $_SESSION['name'];
     $email = $_SESSION['email'];
     ?>
-    
     <nav class="navbar navbar-fixed-top">
         <div class="main-header">
             <img src="img/Jijiga_University.png" alt="Jijiga University logo" />
@@ -48,7 +45,7 @@
             <div class="title1">
                 <div class="">
                     <div class="side-nav-header">
-                        <b class="sidenav-txt side-nav-text">Header Dashboard</b>
+                        <b class="sidenav-txt side-nav-text">Admin Dashboard</b>
                         <span id="sidenav-btn" class="glyphicon glyphicon-chevron-right side-nav-button"
                             style="font-size: 16px;" aria-hidden="true"></span>
                     </div>
@@ -58,39 +55,41 @@
                     <div class="" style="padding: 0;" id="">
                         <ul class="side-nav-links">
                             <li <?php if(@$_GET['q']==0) echo'class="active"'; ?>>
-                                <a href="header.php?q=0">
+                                <a href="admin.php?q=0">
                                     <span class="glyphicon glyphicon-home bigger-icons" aria-hidden="true"></span>
                                     <div class="sidenav-txt side-nav-text">&nbsp;Home</div>
                                     <span class="sr-only">(current)</span>
                                 </a>
                             </li>
-                            <li <?php if(@$_GET['q']==1) echo'class="active"'; ?>>
-                                <a href="header.php?q=1">
-                                    <span class="glyphicon glyphicon-user bigger-icons" aria-hidden="true"></span>
-                                    <div class="sidenav-txt side-nav-text">&nbsp;View Students</div>
-                                </a>
-                            </li>
-                            <li <?php if(@$_GET['q']==2) echo'class="active"'; ?>>
-                                <a href="header.php?q=2">
-                                    <span class="glyphicon glyphicon-education bigger-icons" aria-hidden="true"></span>
-                                    <div class="sidenav-txt side-nav-text">&nbsp;View Teachers</div>
-                                </a>
-                            </li>
+                        <li <?php if(@$_GET['q']==1) echo'class="active"'; ?>>
+                            <a href="admin.php?q=1">
+                                <span class="glyphicon glyphicon-user bigger-icons" aria-hidden="true"></span>
+                                <div class="sidenav-txt side-nav-text">&nbsp;View Students</div>
+                            </a>
+                        </li>  
+                        <li <?php if(@$_GET['q']==2) echo'class="active"'; ?>>
+                            <a href="admin.php?q=2">
+                                <span class="glyphicon glyphicon-education bigger-icons" aria-hidden="true"></span>
+                                <div class="sidenav-txt side-nav-text">&nbsp;View Teachers</div>
+                            </a>
+                        </li>
+
                         <li <?php if(@$_GET['q']==3) echo'class="active"'; ?>>
-                            <a href="header.php?q=3">
-                                <span class="glyphicon glyphicon-stats bigger-icons" aria-hidden="true"></span>
-                                <div class="sidenav-txt side-nav-text">&nbsp;Ranking</div>
+                            <a href="admin.php?q=3">
+                                <span class="glyphicon glyphicon-user bigger-icons" aria-hidden="true"></span>
+                                <div class="sidenav-txt side-nav-text">&nbsp;View Headers</div>
                             </a>
                         </li>
-                <!---- <li <?php if(@$_GET['q']==4) echo'class="active"'; ?>><a href="teacher.php?q=3">Feedback</a></li>  ---->
+
                         <li <?php if(@$_GET['q']==4) echo'class="active"'; ?>>
-                            <a href="header.php?q=4">
-                                <span class="glyphicon glyphicon-plus bigger-icons" aria-hidden="true"></span>
-                                <div class="sidenav-txt side-nav-text">&nbsp;Add Student</div>
+                            <a href="admin.php?q=4">
+                            <span class="glyphicon glyphicon-plus bigger-icons" aria-hidden="true"></span>
+                                <div class="sidenav-txt side-nav-text">&nbsp;Add User</div>
                             </a>
                         </li>
+
                         <li>
-                            <a href="logout.php?q=header.php">
+                            <a href="logout.php?q=admin.php">
                                 <span class="glyphicon glyphicon-log-out bigger-icons" aria-hidden="true"></span>
                                 <div class="sidenav-txt side-nav-text">&nbsp;Logout</div>
                             </a>
@@ -103,12 +102,12 @@
         <!--navigation menu end-->
 
 
-<div id="main" class="main-container"><!--container start--> 
+<div id="main" class="main-container"><!--container start-->
     <div class="row">
         <div class="col-md-12">
 
-        <!-- home Start -->
-<?php if (@$_GET['q'] == 0 && $_SESSION['role'] == 'header'): ?>
+            <!-- home Start -->
+            <?php if (@$_GET['q'] == 0 && $_SESSION['role'] == 'admin'): ?>
     <div class="section-panel" style="margin-bottom: 0;">
         <h2 style="margin-bottom: 20px;">Dashboard Overview</h2>
 
@@ -140,9 +139,9 @@
 
         <br><br>
         <h3>Recent Users</h3>
-        <table class="table recent-table">
+        <table class="recent-table table  title1">
             <thead>
-                <tr style="color: #3d52a0;">
+            <tr style="color: #3d52a0;">
                     <th>ID</th>
                     <th>Name</th>
                     <th>Email</th>
@@ -152,7 +151,7 @@
                 </tr>
             </thead>
                 <?php
-                $recent_users = mysqli_query($con, "SELECT * FROM user WHERE role NOT IN ('admin', 'header') ORDER BY id DESC LIMIT 5");
+                $recent_users = mysqli_query($con, "SELECT * FROM user WHERE role != 'admin' ORDER BY id DESC LIMIT 5");
                 while ($user = mysqli_fetch_array($recent_users)) {
                     $formatted_date = date("Y-m-d", strtotime($user['date']));
                     echo '<tr>';
@@ -168,17 +167,16 @@
         </table>
     </div>
 <?php endif; ?>
-
 <!-- Home End -->
 
-<!-- View Students Start -->
+
+            <!-- View Students Start -->
 <?php if (@$_GET['q'] == 1): ?>
     <div class="section-panel">
         <div class="search-table">
-            <!-- Search Input (left) -->
             <div style="position: relative;">
                 <label for="studentSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
-                <input type="text" id="studentSearch" class="form-control"  style="padding-block: 4px !important;">
+                <input type="text" id="studentSearch" class="form-control" style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
@@ -300,22 +298,20 @@
 <!-- View Students End -->
 
 
-
-
             <!-- View Teachers Start -->
 <?php if (@$_GET['q'] == 2): ?>
     <div class="section-panel">
         <div class="search-table">
-            <!-- Search Input (left) -->
             <div style="position: relative;">
                 <label for="teacherSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
-                <input type="text" id="teacherSearch" class="form-control"   style="padding-block: 4px !important;">
+                <input type="text" id="teacherSearch" class="form-control" style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
-            <select id="teacherDepartmentFilter" class="form-control" style="width: 200px;">
+            <select id="departmentFilter" class="form-control" style="width: 200px;">
                 <option value="">All Departments</option>
                 <?php
+                // Fetch distinct departments for the filter
                 $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'teacher' ORDER BY department ASC") or die('Error fetching departments');
                 while ($dept_row = mysqli_fetch_array($dept_result)) {
                     $department = htmlspecialchars($dept_row['department']);
@@ -325,7 +321,7 @@
             </select>
         </div>
 
-        <table class="r-view-table table title1" id="teachersTable">
+        <table class="view-table table title1" id="teachersTable">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -334,19 +330,22 @@
                     <th>College</th>
                     <th>Department</th>
                     <th>Phone</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
                 $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'teacher' ORDER BY id ASC") or die('Error fetching teachers');
                 while ($row = mysqli_fetch_array($result)) {
-                    echo '<tr>';
+                    echo '<tr data-id="' . $row['id'] . '">';
                     echo '<td>' . $row['id'] . '</td>';
                     echo '<td>' . htmlspecialchars($row['name']) . ' ' . htmlspecialchars($row['fatherName']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['email']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['college']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['department']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
+                    echo '<td><button class="delete-btn" data-id="' . $row['id'] . '" style="border: none; background: none; cursor: pointer;"><i class="fa fa-trash" style="color: red;"></i></button></td>';
+
                     echo '</tr>';
                 }
                 ?>
@@ -355,9 +354,21 @@
     </div>
 
     <script>
+    let selectedTeacherId = null;
+
+    function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+        selectedTeacherId = null;
+    }
+
+    function openModal(teacherId) {
+        selectedTeacherId = teacherId;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const searchInput = document.getElementById('teacherSearch');
-        const departmentFilter = document.getElementById('teacherDepartmentFilter');
+        const departmentFilter = document.getElementById('departmentFilter');
         const rows = document.querySelectorAll('#teachersTable tbody tr');
 
         function filterTable() {
@@ -377,122 +388,209 @@
 
         searchInput.addEventListener('keyup', filterTable);
         departmentFilter.addEventListener('change', filterTable);
+
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const teacherId = this.getAttribute('data-id');
+                openModal(teacherId);
+            });
+        });
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+            if (!selectedTeacherId) return;
+
+            fetch('update.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'id=' + encodeURIComponent(selectedTeacherId) + '&role=teacher'
+            })
+            .then(response => response.text())
+            .then(result => {
+                if (result.trim() === 'success') {
+                    const row = document.querySelector('tr[data-id="' + selectedTeacherId + '"]');
+                    if (row) row.remove();
+                    closeModal();
+                } else {
+                    alert('Failed to delete teacher.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+            });
+        });
     });
-    </script>
+</script>
+
 <?php endif; ?>
 <!-- View Teachers End -->
 
 
-          <?php  
+<!-- View Headers Start -->
+<?php if (@$_GET['q'] == 3): ?>
+<div class="section-panel">
+    <div class="search-table">
+            <!-- Search Input (left) -->
+            <div style="position: relative;">
+                <label for="headerSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
+            <input type="text" id="headerSearch" class="form-control"   style="padding-block: 4px !important;">
+        </div>
 
-            // Ranking Start
-if (@$_GET['q'] == 3) {
-    $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
-
-    $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
-
-    echo '<div class="section-panel title">';
-    echo '<div class="filter-form-container">';
-
-    // Filter Form
-    echo '<form method="GET" action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" class="form-inline" style="margin-bottom:15px;">
-            <input type="hidden" name="q" value="2">
-            <div class="form-group" style="margin-right:10px;">
-                <label for="filter_college">College:</label>
-                <select name="filter_college" id="filter_college" class="form-control">
-                    <option value="">All Colleges</option>';
-
-    // college options in the dropdown
-    while ($row = mysqli_fetch_array($colleges_result)) {
-        $college = $row['college'];
-        $selected = ($college == $selected_college) ? 'selected' : '';
-        echo '<option value="' . htmlspecialchars($college) . '" ' . $selected . '>' . htmlspecialchars($college) . '</option>';
-    }
-
-    echo '</select>
-          </div>
-          <button type="submit" class="primary-button">Filter</button>
-          <a href="' . htmlspecialchars($_SERVER['PHP_SELF']) . '?q=2" class="btn-container" style="margin-left:5px;"><button class="warn-button" style="padding: 8px 15px;">Reset</button></a>
-          </form> </div>';
-
-    $query = "SELECT r.email, r.score
-              FROM rank r
-              ORDER BY r.score DESC";
-
-    if (!empty($selected_college)) {
-        $query = "SELECT r.email, r.score
-                  FROM rank r, user u
-                  WHERE r.email = u.email
-                  AND u.college='" . mysqli_real_escape_string($con, $selected_college) . "'
-                  ORDER BY r.score DESC";
-    }
-
-    $q = mysqli_query($con, $query) or die('Error223');
-
-    // Ranking table
-    echo '<table class="table t-ranking-table table-striped title1">
-            <tr style="color:#3d52a0;">
-            <td><b>Rank</b></td><td>
-            <b>Name</b></td>
-            <td><b>Gender</b></td>
-            <td><b>College</b></td>
-            <td><b>Score</b></td>
-            </tr>';
-
-    $c = 0;
-    $c = 0;
-while ($row = mysqli_fetch_array($q)) {
-    $e = $row['email'];
-    $s = $row['score'];
-
-    // Get user data based on the email
-    $q12 = mysqli_query($con, "SELECT * FROM user WHERE email='$e' LIMIT 1");
-    
-    if ($user_row = mysqli_fetch_array($q12)) {
-        $name = !empty($user_row['name']) ? $user_row['name'] : '-';
-        $gender = !empty($user_row['gender']) ? $user_row['gender'] : '-';
-        $college = !empty($user_row['college']) ? $user_row['college'] : '-';
-
-        $c++;
-        echo '<tr>
-                <td><b>' . $c . '</b></td>
-                <td>' . htmlspecialchars($name) . '</td>
-                <td>' . htmlspecialchars($gender) . '</td>
-                <td>' . htmlspecialchars($college) . '</td>
-                <td>' . htmlspecialchars($s) . '</td>
-              </tr>';
-    }
-}
-
-
-    echo '</table></div>';
-}
-?>
-<!--ranking end-->
-
-
-            <!--add Student-->
+        <!-- Filter Select (right) -->
+        <select id="headerDepartmentFilter" class="form-control" style="width: 200px;">
+            <option value="">All Departments</option>
             <?php
-if (isset($_GET['q']) && $_GET['q'] == 4) {
+            $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'header' ORDER BY department ASC") or die('Error fetching departments');
+            while ($dept_row = mysqli_fetch_array($dept_result)) {
+                $department = htmlspecialchars($dept_row['department']);
+                echo "<option value=\"$department\">$department</option>";
+            }
+            ?>
+        </select>
+    </div>
+
+    <table class="view-table table title1" id="headersTable">
+        <thead>
+            <tr style="color: #3d52a0;">
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>College</th>
+                <th>Department</th>
+                <th>Phone</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'header' ORDER BY id ASC") or die('Error fetching headers');
+            while ($row = mysqli_fetch_array($result)) {
+                $name = htmlspecialchars($row['name']);
+                $fatherName = isset($row['fatherName']) && $row['fatherName'] !== null ? ' ' . htmlspecialchars($row['fatherName']) : '';
+                echo '<tr data-id="' . $row['id'] . '">';
+                echo '<td>' . $row['id'] . '</td>';
+                echo '<td>' . $name . $fatherName . '</td>';
+                echo '<td>' . htmlspecialchars($row['email']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['college']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['department']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
+                echo '<td><button class="delete-btn" data-id="' . $row['id'] . '" style="border: none; background: none; cursor: pointer;"><i class="fa fa-trash" style="color: red;"></i></button></td>';
+                echo '</tr>';
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
+<script>
+let selectedHeaderId = null;
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    selectedHeaderId = null;
+}
+
+function openModal(headerId) {
+    selectedHeaderId = headerId;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('headerSearch');
+    const departmentFilter = document.getElementById('headerDepartmentFilter');
+    const rows = document.querySelectorAll('#headersTable tbody tr');
+
+    function filterTable() {
+        const searchValue = searchInput.value.toLowerCase();
+        const selectedDept = departmentFilter.value.toLowerCase();
+
+        rows.forEach(row => {
+            const name = row.children[1].textContent.toLowerCase();
+            const department = row.children[4].textContent.toLowerCase();
+
+            const matchesSearch = name.includes(searchValue);
+            const matchesDepartment = selectedDept === '' || department === selectedDept;
+
+            row.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
+        });
+    }
+
+    searchInput.addEventListener('keyup', filterTable);
+    departmentFilter.addEventListener('change', filterTable);
+
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const headerId = this.getAttribute('data-id');
+            openModal(headerId);
+        });
+    });
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
+        if (!selectedHeaderId) return;
+
+        fetch('update.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'id=' + encodeURIComponent(selectedHeaderId) + '&role=header'
+        })
+        .then(response => response.text())
+        .then(result => {
+            if (result.trim() === 'success') {
+                const row = document.querySelector('tr[data-id="' + selectedHeaderId + '"]');
+                if (row) row.remove();
+                closeModal();
+            } else {
+                alert('Failed to delete header.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred.');
+        });
+    });
+});
+</script>
+<?php endif; ?>
+<!-- View Headers End -->
+
+
+
+<!-- Add User -->
+<?php
+if (isset($_GET['q']) && $_GET['q'] == 4) { // Use q=5 for "Add User"
     echo "
     <div class=\"section-panel title\">
         <div class=\"row\">
-            <span class=\"title1 form-title\" style=\"color:#3d52a0; display:flex; justify-content:center; font-size:30px;\">
-                <b>Add Student Details</b>
+            <span class=\"title1\" style=\"color:#3d52a0; display:flex; justify-content:center; font-size:30px;\">
+                <b>Add User Details</b>
             </span>
 
-            <form class=\"form-horizontal title1\" name=\"form\" action=\"update.php?q=addStudent\" method=\"POST\" style=\"padding:20px; align-items:center;\">
-                <fieldset class=\"add-student-form\">
+            <form class=\"form-horizontal title1\" name=\"form\" action=\"update.php?q=addUser\" method=\"POST\" style=\"padding:20px; align-items:center;\">
+                <fieldset class=\"add-user-form\">
 
-                    <!-- Student Name -->
+                    <!-- Role -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"name\">Name:</label>
+                        <label class=\"col-md-12\" for=\"role\">Role:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"name\" name=\"name\" class=\"form-control input-md\" type=\"text\" placeholder=\"Enter name\" required>
+                            <select id=\"role\" name=\"role\" class=\"form-control input-md\" required>
+                                <option value=\"\">Select Role</option>
+                                <option value=\"student\">Student</option>
+                                <option value=\"teacher\">Teacher</option>
+                                <option value=\"header\">Header</option>
+                                <option value=\"admin\">Admin</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Fathers Name -->
+                    <!-- Name -->
+                    <div class=\"form-group\">
+                        <label class=\"col-md-12\" for=\"name\">Name:</label>
+                        <div class=\"col-md-12\">
+                            <input id=\"name\" name=\"name\" placeholder=\"Enter name\" class=\"form-control input-md\" type=\"text\" required>
+                        </div>
+                    </div>
+
+                    <!-- Father's Name -->
                     <div class=\"form-group\">
                         <label class=\"col-md-12\" for=\"fatherName\">Father Name:</label>
                         <div class=\"col-md-12\">
@@ -540,7 +638,7 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
                     <div class=\"form-group\">
                         <label class=\"col-md-12\" for=\"department\">Department:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"department\" name=\"department\" placeholder=\"Enter department name\" class=\"form-control input-md\" type=\"text\" required>
+                            <input id=\"department\" name=\"department\" placeholder=\"Enter department name\" class=\"form-control input-md\" type=\"text\">
                         </div>
                     </div>
 
@@ -552,7 +650,7 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Submit -->
                     <div class=\"form-group\" style=\"justify-content:center; margin-top:40px;\">
                         <div class=\"col-md-12 text-center\">
                             <button type=\"submit\" class=\"primary-button\" style=\"font-size:20px;\">Submit</button>
@@ -563,12 +661,14 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
             </form>
         </div>
     </div>";
-
 }
 ?>
-<!-- End Add Student -->
+<!-- End Add User -->
 
             
+        </div>
+    </div>
+</div><!--container closed-->
 
 <!-- Delete Confirmation Modal -->
 <div id="deleteModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background-color: rgba(0,0,0,0.5); justify-content:center; align-items:center;">
@@ -580,7 +680,6 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
         </div>
     </div>
 </div>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -633,7 +732,6 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
         main.classList.toggle('move-right');
     });
 });
-
 
     </script>
     <script src="js/jquery-3.7.1.slim.js"></script>

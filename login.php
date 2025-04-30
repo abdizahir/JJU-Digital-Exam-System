@@ -36,6 +36,8 @@ if ($count === 1) {
         $redirect = 'teacher.php?q=0';
     } else if ($role === 'header') {
         $redirect = 'header.php?q=0';
+    }else if ($role === 'admin') {
+        $redirect = 'admin.php?q=0';
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid user role.']);
         exit;

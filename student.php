@@ -6,7 +6,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Online examiner</title>
+    <title>Student</title>
     <link rel="stylesheet" href="css/bootstrap.min.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/bootstrap-theme.min.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/style.css?v=<?php echo time(); ?>">
@@ -54,12 +54,10 @@
         <!--navigation menu-->
         <div id="sidenav" class="right-sidebar side-nav-small" style="overflow: visible;">
             <div class="title1">
-                <!-- TODO: Add a Tooltip -->
                 <div class="">
                     <div class="side-nav-header">
                         <b class="sidenav-txt side-nav-text">Student Dashboard</b>
-                        <span id="sidenav-btn" class="glyphicon glyphicon-chevron-right side-nav-button"
-                            style="font-size: 16px;" aria-hidden="true"></span>
+                        <span id="sidenav-btn" class="glyphicon glyphicon-chevron-right side-nav-button" style="font-size: 16px;" aria-hidden="true"></span>
                     </div>
 
                     <!-- Navigation Links -->
@@ -67,38 +65,26 @@
                         <ul class="side-nav-links">
                             <li <?php if (@$_GET['q'] == 1) { echo 'class="active"'; } ?>>
                                 <a href="student.php?q=1">
-                                    <div class="tooltip1">
                                         <span class="glyphicon glyphicon-home bigger-icons" aria-hidden="true"></span>
-                                        <span class="side-nav-tooltip tooltip-text">Home</span>
-                                    </div>
                                     <div class="sidenav-txt side-nav-text">&nbsp;Home</div>
                                     <span class="sr-only">(current)</span>
                                 </a>
                             </li>
                             <li <?php if (@$_GET['q'] == 2) { echo 'class="active"'; } ?>>
                                 <a href="student.php?q=2">
-                                    <div class="tooltip1">
                                         <span class="glyphicon glyphicon-list-alt bigger-icons" aria-hidden="true"></span>
-                                        <span class="side-nav-tooltip tooltip-text">History</span>
-                                    </div>
                                     <div class="sidenav-txt side-nav-text">&nbsp;History</div>
                                 </a>
                             </li>
                             <li <?php if (@$_GET['q'] == 3) { echo 'class="active"'; } ?>>
                                 <a href="student.php?q=3">
-                                    <div class="tooltip1">
                                         <span class="glyphicon glyphicon-stats bigger-icons" aria-hidden="true"></span>
-                                        <span class="side-nav-tooltip tooltip-text">Ranking</span>
-                                    </div>
                                     <div class="sidenav-txt side-nav-text">&nbsp;Ranking</div>
                                 </a>
                             </li>
                             <li>
                                 <a href="logout.php?q=student.php">
-                                    <div class="tooltip1">
                                         <span class="glyphicon glyphicon-log-out bigger-icons" aria-hidden="true"></span>
-                                        <span class="side-nav-tooltip tooltip-text">Logout</span>
-                                    </div>
                                     <div class="sidenav-txt side-nav-text">&nbsp;Logout</div>
                                 </a>
                             </li>
@@ -111,88 +97,97 @@
 
 
         <!--container start-->
-        <div id="main" class="main-container">
+        <div id="main" class="main-container" style="margin-top: 70px;">
             <div class="row">
                 <div class="col-md-12">
                     <!--home start-->
-                    <?php if (@$_GET['q'] == 1) {
-                        $result = mysqli_query($con, "SELECT * FROM exam ORDER BY date DESC") or die('Error');
-                        $exams = [];
+<?php 
+if (@$_GET['q'] == 1) {
 
-                        while ($row = mysqli_fetch_array($result)) {
-                            $eid = $row['eid'];
-                            $q12 = mysqli_query($con, "SELECT score FROM history WHERE eid='$eid' AND email='$email'") or die('Error98');
-                            $rowcount = mysqli_num_rows($q12);
+    // 1. Get student's department
+    $student_query = mysqli_query($con, "SELECT department FROM user WHERE email='$email' LIMIT 1") or die('Error fetching department');
+    $student_data = mysqli_fetch_array($student_query);
+    $student_department = $student_data['department'];
 
-                            $exams[] = [
-                                'title' => $row['title'],
-                                'mark'  => $row['mark'],
-                                'total' => $row['total'],
-                                'time'  => $row['time'],
-                                'eid'   => $eid,
-                                'attempted' => $rowcount > 0
-                            ];
-                        }
-                    }
-                    if (@$_GET['q'] == 1): ?>
-                    <div class="section-panel">
-                        <table class="exam-table table table-striped title1">
-                            <tr style="color:#3d52a0;">
-                                <td><b>No.</b></td>
-                                <td><b>Topic</b></td>
-                                <td class="col-total"><b>Total Questions</b></td>
-                                <td class="col-marks"><b>Marks per Question</b></td>
-                                <td class="col-positive"><b>Total Marks</b></td>
-                                <td><b>Time Limit</b></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <?php $c = 1; ?>
-                            <?php foreach ($exams as $exam): ?>
-                            <?php if (!$exam['attempted']): ?>
-                            <tr>
-                                <td><?= $c++ ?></td>
-                                <td><?= htmlspecialchars($exam['title']) ?></td>
-                                <td class="col-total"><?= $exam['total'] ?></td>
-                                <td class="col-positive"><?= $exam['mark'] ?></td>
-                                <td class="col-marks"><?= $exam['mark'] * $exam['total'] ?></td>
-                                <td><?= $exam['time'] ?> min</td>
-                                <td>
-                                    <a title="Open exam description" href="student.php?q=1&fid=<?= $exam['eid'] ?>">
-                                        <b><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></b>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="student.php?q=exam&step=2&eid=<?= $exam['eid'] ?>&n=1&t=<?= $exam['total'] ?>"
-                                        class="pull-right btn-container">
-                                        <button class="primary-button">
-                                            <span class="glyphicon glyphicon-new-window"
-                                                aria-hidden="true"></span>&nbsp;
-                                            <span class="title1"><b>Start</b></span>
-                                        </button>
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php else: ?>
-                            <tr style="color:#99cc32">
-                                <td><?= $c++ ?></td>
-                                <td>
-                                    <?= htmlspecialchars($exam['title']) ?>
-                                    <span title="This exam is already solved by you" class="glyphicon glyphicon-ok"
-                                        aria-hidden="true"></span>
-                                </td>
-                                <td><?= $exam['total'] ?></td>
-                                <td><?= $exam['mark'] ?></td>
-                                <td><?= $exam['mark'] * $exam['total'] ?></td>
-                                <td><?= $exam['time'] ?> min</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                            <?php endif; ?>
-                            <?php endforeach; ?>
-                        </table>
-                    </div>
-                    <?php endif; ?>
+    // 2. Fetch exams created for that department only
+    $result = mysqli_query($con, "SELECT * FROM exam WHERE department='$student_department' ORDER BY date DESC") or die('Error fetching exams');
+    $exams = [];
+
+    while ($row = mysqli_fetch_array($result)) {
+        $eid = $row['eid'];
+        $q12 = mysqli_query($con, "SELECT score FROM history WHERE eid='$eid' AND email='$email'") or die('Error98');
+        $rowcount = mysqli_num_rows($q12);
+
+        $exams[] = [
+            'title' => $row['title'],
+            'mark'  => $row['mark'],
+            'total' => $row['total'],
+            'time'  => $row['time'],
+            'eid'   => $eid,
+            'attempted' => $rowcount > 0
+        ];
+    }
+}
+?>
+
+<?php if (@$_GET['q'] == 1): ?>
+<div class="section-panel">
+    <table class="exam-table table table-striped title1">
+        <tr style="color:#3d52a0;">
+            <td><b>No.</b></td>
+            <td><b>Topic</b></td>
+            <td class="col-total"><b>Total Questions</b></td>
+            <td class="col-marks"><b>Marks per Question</b></td>
+            <td class="col-positive"><b>Total Marks</b></td>
+            <td><b>Time Limit</b></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <?php $c = 1; ?>
+        <?php foreach ($exams as $exam): ?>
+            <?php if (!$exam['attempted']): ?>
+            <tr>
+                <td><?= $c++ ?></td>
+                <td><?= htmlspecialchars($exam['title']) ?></td>
+                <td><?= $exam['total'] ?></td>
+                <td><?= $exam['mark'] ?></td>
+                <td><?= $exam['mark'] * $exam['total'] ?></td>
+                <td><?= $exam['time'] ?> min</td>
+                <td>
+                    <a title="Open exam description" href="student.php?q=1&fid=<?= $exam['eid'] ?>">
+                        <b><span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span></b>
+                    </a>
+                </td>
+                <td>
+                    <a href="student.php?q=exam&step=2&eid=<?= $exam['eid'] ?>&n=1&t=<?= $exam['total'] ?>" class="pull-right btn-container">
+                        <button class="primary-button">
+                            <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span>&nbsp;
+                            <span class="title1"><b>Start</b></span>
+                        </button>
+                    </a>
+                </td>
+            </tr>
+            <?php else: ?>
+            <tr style="color:#99cc32">
+                <td><?= $c++ ?></td>
+                <td>
+                    <?= htmlspecialchars($exam['title']) ?>
+                    <span title="This exam is already solved by you" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                </td>
+                <td><?= $exam['total'] ?></td>
+                <td><?= $exam['mark'] ?></td>
+                <td><?= $exam['mark'] * $exam['total'] ?></td>
+                <td><?= $exam['time'] ?> min</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    </table>
+</div>
+<?php endif; ?>
+
+                    <!-- end home -->
 
                     <!----exam reading portion starts--->
 
@@ -281,7 +276,7 @@ if (@$_GET['q'] == 'exam' && @$_GET['step'] == 2) :
 
 <!-- Timer Display -->
 <div style="text-align:center; margin-bottom: 20px;">
-    <h2>Time Remaining: <span id="timer" style="color: red;"></span></h2>
+    <h2 class="form-title">Time Remaining: <span id="timer" style="color: red;"></span></h2>
 </div>
 
 <!-- Question Panel -->
@@ -305,12 +300,10 @@ if (@$_GET['q'] == 'exam' && @$_GET['step'] == 2) :
                 $option = $opt['option'];
                 $optionid = $opt['optionid'];
             ?>
-            <div class="form-group">
-                <label>
-                    <input required type="radio" name="ans" value="<?= $optionid ?>">
-                    <?= htmlspecialchars($option) ?>
-                </label>
-            </div>
+            <label class="radio-option">
+                <input required type="radio" name="ans" value="<?= $optionid ?>">
+                <span class="answer-text"><?= htmlspecialchars($option) ?></span>
+            </label>
             <?php endwhile; ?>
             <br>
 
@@ -322,7 +315,7 @@ if (@$_GET['q'] == 'exam' && @$_GET['step'] == 2) :
                 </button>
                 <?php else: ?>
                 <button type="submit" class="primary-button">
-                    Submit&nbsp;&nbsp;<span class="glyphicon glyphicon-lock" aria-hidden="true"></span>
+                    Submit
                 </button>
                 <?php endif; ?>
             </div>
@@ -375,12 +368,12 @@ if (@$_GET['q'] == 'result' && @$_GET['eid']) :
                         <br>
                         <table class="table table-striped title1" style="font-size:20px; font-weight:1000;">
                             <?php
-        while ($row = mysqli_fetch_array($q)) :
-            $s = $row['score'];
-            $r = $row['mark'];
-            $qa = $row['level'];
-            $w = $qa - $r;
-        ?>
+                            while ($row = mysqli_fetch_array($q)) :
+                                $s = $row['score'];
+                                $r = $row['mark'];
+                                $qa = $row['level'];
+                                $w = $qa - $r;
+                            ?>
                             <tr>
                                 <td>Total Questions</td>
                                 <td><?= $qa ?></td>
@@ -472,27 +465,27 @@ if (@$_GET['q'] == 2) {
 if (@$_GET['q'] == 3) {
     $q = mysqli_query($con, "SELECT * FROM rank ORDER BY score DESC") or die('Error223');
 ?>
-                    <div class="section-panel title">
-                        <table class="table table-striped title1 ranking-table">
-                            <tr style="color:#3d52a0">
-                                <th>Rank</th>
-                                <th>Name</th>
-                                <th>Gender</th>
-                                <th>College</th>
-                                <th>Score</th>
-                            </tr>
-                            <?php
-            $c = 1;
-            while ($row = mysqli_fetch_array($q)) {
-                $e = $row['email'];
-                $s = $row['score'];
+<div class="section-panel title">
+    <table class="table table-striped title1 ranking-table">
+        <tr style="color:#3d52a0">
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Gender</th>
+            <th>College</th>
+            <th>Score</th>
+        </tr>
+        <?php
+        $c = 1;
+        while ($row = mysqli_fetch_array($q)) {
+            $e = $row['email'];
+            $s = $row['score'];
 
-                $q12 = mysqli_query($con, "SELECT * FROM user WHERE email='$e'") or die('Error231');
-                $userRow = mysqli_fetch_array($q12);
+            $q12 = mysqli_query($con, "SELECT * FROM user WHERE email='$e' LIMIT 1");
 
-                $name = $userRow['name'];
-                $gender = $userRow['gender'];
-                $college = $userRow['college'];
+            if ($userRow = mysqli_fetch_array($q12)) {
+                $name = !empty($userRow['name']) ? $userRow['name'] : '-';
+                $gender = !empty($userRow['gender']) ? $userRow['gender'] : '-';
+                $college = !empty($userRow['college']) ? $userRow['college'] : '-';
 
                 echo '<tr>';
                 echo '<td style="color:#99cc32"><b>' . $c++ . '</b></td>';
@@ -502,12 +495,15 @@ if (@$_GET['q'] == 3) {
                 echo '<td>' . $s . '</td>';
                 echo '</tr>';
             }
-            ?>
-                        </table>
-                    </div>
-                    <?php
+            // If user not found, skip showing anything
+        }
+        ?>
+    </table>
+</div>
+<?php
 }
 ?>
+
 
 
 
@@ -524,15 +520,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const button = document.getElementById('sidenav-btn');
     const elements = document.querySelectorAll('.sidenav-txt');
     const main = document.getElementById('main');
-    const tooltips = document.querySelectorAll('.side-nav-tooltip');
 
-    // media query
+    // Media query
     const mediaQuery = window.matchMedia('(min-width: 992px)');
 
-    // media query change
+    // Media query change
     function handleMediaQuery(e) {
         if (e.matches) {
-            // at least 992px wide
+            // At least 992px
             sidebar.classList.add('side-nav-big');
             sidebar.classList.remove('side-nav-small');
             button.classList.remove('glyphicon-chevron-right');
@@ -542,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             main.classList.add('move-right');
         } else {
-            // less than 992px wide
+            // Less than 992px
             sidebar.classList.remove('side-nav-big');
             sidebar.classList.add('side-nav-small');
             button.classList.remove('glyphicon-chevron-left');
@@ -552,12 +547,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             main.classList.remove('move-right');
         }
-
-        toggleTooltips();
     }
 
     handleMediaQuery(mediaQuery);
 
+    // Listen for changes in screen size
     mediaQuery.addListener(handleMediaQuery);
 
     button.addEventListener('click', function() {
@@ -569,21 +563,7 @@ document.addEventListener('DOMContentLoaded', function () {
             element.classList.toggle('side-nav-text');
         });
         main.classList.toggle('move-right');
-
-        toggleTooltips();
     });
-
-    function toggleTooltips() {
-        if (sidebar.classList.contains('side-nav-small')) {
-            tooltips.forEach(function(tooltip) {
-                tooltip.classList.remove('hidden');  
-            });
-        } else {
-            tooltips.forEach(function(tooltip) {
-                tooltip.classList.add('hidden'); 
-            });
-        }
-    }
 });
 
 

@@ -27,7 +27,6 @@
 
     $name  = $_SESSION['name'];
     $email = $_SESSION['email'];
-    $teacher_id = $_SESSION['id'];
     ?>
     <nav class="navbar navbar-fixed-top">
         <div class="main-header">
@@ -42,7 +41,7 @@
     </nav>
 
 <!--navigation menu-->
-<div id="sidenav" class="right-sidebar side-nav-small" style="overflow: visible;">
+        <div id="sidenav" class="right-sidebar side-nav-small" style="overflow: visible;">
             <div class="title1">
                 <div class="">
                     <div class="side-nav-header">
@@ -171,11 +170,11 @@ if (@$_GET['q'] == 0) {
 <!-- View Students Start -->
 <?php if (@$_GET['q'] == 6): ?>
     <div class="section-panel">
-        <div class="search-table" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div class="search-table">
             <!-- Search Input (left) -->
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="studentSearch">Search:</label>
-                <input type="text" id="studentSearch" class="form-control" placeholder="Search by name...">
+            <div style="position: relative;">
+                <label for="studentSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
+                <input type="text" id="studentSearch" class="form-control"   style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
@@ -192,7 +191,7 @@ if (@$_GET['q'] == 0) {
             </select>
         </div>
 
-        <table class="t-student-table table title1" id="studentsTable">
+        <table class="r-view-table table title1" id="studentsTable">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -207,9 +206,11 @@ if (@$_GET['q'] == 0) {
                 <?php
                 $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'student' ORDER BY id ASC") or die('Error fetching students');
                 while ($row = mysqli_fetch_array($result)) {
+                    $name = htmlspecialchars($row['name']);
+                $fatherName = isset($row['fatherName']) && $row['fatherName'] !== null ? ' ' . htmlspecialchars($row['fatherName']) : '';
                     echo '<tr>';
                     echo '<td>' . $row['id'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['name']) . '</td>';
+                    echo '<td>' . $name . $fatherName . '</td>';
                     echo '<td>' . htmlspecialchars($row['email']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['college']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['department']) . '</td>';
@@ -442,70 +443,82 @@ if (@$_GET['q'] == 2) {
             ?>
             <!--ranking end-->
 
-            <!--add exam-->
             <?php
-                if(isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step']))
-                {
-                echo ' 
-                <div class="section-panel title">
-  <div class="row">
-    <span class="title1" style="color:#3d52a0; display:flex; justify-content:center; font-size:30px;">
-      <b>Enter Exam Details</b>
-    </span>
-    
-    <form class="form-horizontal title1" name="form" action="update.php?q=addExam" style="padding:20px; align-items:center;" method="POST">
-      <fieldset class="add-exam-form">
-      
-        <!-- Exam Title -->
-        <div class="form-group">
-          <label class="col-md-12" for="name">Title:</label>
-          <div class="col-md-12">
-            <input id="name" name="name" placeholder="Enter Exam title" class="form-control input-md" type="text">
-          </div>
-        </div>
+if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
+    echo ' 
+    <div class="section-panel title">
+        <div class="row">
+            <span class="title1 form-title" style="color:#3d52a0; display:flex; justify-content:center; font-size:30px;">
+                <b>Enter Exam Details</b>
+            </span>
+            
+            <form class="form-horizontal title1" name="form" action="update.php?q=addExam" style="padding:20px; align-items:center;" method="POST">
+                <fieldset class="add-exam-form">
+                
+                    <!-- Exam Title -->
+                    <div class="form-group">
+                        <label class="col-md-12" for="name">Title:</label>
+                        <div class="col-md-12">
+                            <input id="name" name="name" placeholder="Enter Exam title" class="form-control input-md" type="text" required>
+                        </div>
+                    </div>
 
-        <!-- Total Questions -->
-        <div class="form-group">
-          <label class="col-md-12" for="total">Total number of questions:</label>
-          <div class="col-md-12">
-            <input id="total" name="total" placeholder="Enter total number of questions" class="form-control input-md" type="number">
-          </div>
-        </div>
+                    <!-- Department Dropdown -->
+                    <div class="form-group">
+                        <label class="col-md-12" for="department">Department:</label>
+                        <div class="col-md-12">
+                            <select id="department" name="department" class="form-control input-md" required>
+                                <option value="">Select Department</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                                <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                <option value="Business">Business</option>
+                                <!-- Add more departments as needed -->
+                            </select>
+                        </div>
+                    </div>
 
-        <!-- Marks per Correct Answer -->
-        <div class="form-group">
-          <label class="col-md-12" for="right">Marks on right answer:</label>
-          <div class="col-md-12">
-            <input id="right" name="right" placeholder="Enter marks on right answer" class="form-control input-md" min="0" type="number">
-          </div>
-        </div>
+                    <!-- Total Questions -->
+                    <div class="form-group">
+                        <label class="col-md-12" for="total">Total number of questions:</label>
+                        <div class="col-md-12">
+                            <input id="total" name="total" placeholder="Enter total number of questions" class="form-control input-md" type="number" required>
+                        </div>
+                    </div>
 
-        <!-- Time Limit -->
-        <div class="form-group">
-          <label class="col-md-12" for="time">Time Limit:</label>
-          <div class="col-md-12">
-            <input id="time" name="time" placeholder="Enter time limit for test in minute" class="form-control input-md" min="1" type="number">
-          </div>
-        </div>
+                    <!-- Marks per Correct Answer -->
+                    <div class="form-group">
+                        <label class="col-md-12" for="right">Marks on right answer:</label>
+                        <div class="col-md-12">
+                            <input id="right" name="right" placeholder="Enter marks on right answer" class="form-control input-md" min="0" type="number" required>
+                        </div>
+                    </div>
 
-        </fieldset>
+                    <!-- Time Limit -->
+                    <div class="form-group">
+                        <label class="col-md-12" for="time">Time Limit:</label>
+                        <div class="col-md-12">
+                            <input id="time" name="time" placeholder="Enter time limit for test in minute" class="form-control input-md" min="1" type="number" required>
+                        </div>
+                    </div>
+                </fieldset>
 
-        <!-- Description -->
-        <div class="form-group" style="margin-top:25px; padding-inline:16px;">
-          <label class="col-md-12" for="desc">Description:</label>
-          <textarea id="desc" name="desc" rows="8" cols="8" class="form-control" placeholder="Write description here..."></textarea>
+                <!-- Description -->
+                <div class="form-group" style="margin-top:25px; padding-inline:16px;">
+                    <label class="col-md-12" for="desc">Description:</label>
+                    <textarea id="desc" name="desc" rows="8" cols="8" class="form-control" placeholder="Write description here..." required></textarea>
+                </div>
+                
+                <!-- Submit Button -->
+                <div class="form-group" style="justify-items:center; margin-top:40px;">
+                    <button type="submit" class="primary-button" style="font-size:20px;">Submit</button>
+                </div>
+            </form>
         </div>
-        
-        <!-- Submit Button -->
-        <div class="form-group" style="justify-items:center; margin-top:40px;">
-          <button type="submit" class="primary-button" style="font-size:20px;">Submit</button>
-        </div>
-    </form>
-  </div>
-</div>
-';
-                }
-            ?>
+    </div>';
+}
+?>
+
             <!--add exam end-->
             <!--add exam step2 start-->
             <?php
@@ -583,8 +596,8 @@ if (@$_GET['q'] == 2) {
 
                 $result = mysqli_query($con,"SELECT * FROM exam where email='$email' ORDER BY date DESC") or die('Error');
                 echo  '<div class="section-panel">
-                <table class="table t-remove-table table-striped title1">
-                    <tr>
+                <table class="table t-remove-table title1">
+                    <tr style="color:#3d52a0;">
                         <td class="remove-1"><b>No.</b></td>
                         <td><b>Topic</b></td>
                         <td><b>Total question</b></td>

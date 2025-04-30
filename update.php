@@ -7,7 +7,7 @@ if(isset($_SESSION['key'])){
 if(@$_GET['fdid'] && $_SESSION['key']=='prasanth123') {
 $id=@$_GET['fdid'];
 $result = mysqli_query($con,"DELETE FROM feedback WHERE id='$id' ") or die('Error');
-header("location:headdash.php?q=3");
+header("location:admin.php?q=3");
 }
 }
 
@@ -18,7 +18,7 @@ $demail=@$_GET['demail'];
 $r1 = mysqli_query($con,"DELETE FROM rank WHERE email='$demail' ") or die('Error');
 $r2 = mysqli_query($con,"DELETE FROM history WHERE email='$demail' ") or die('Error');
 $result = mysqli_query($con,"DELETE FROM user WHERE email='$demail' ") or die('Error');
-header("location:headdash.php?q=1");
+header("location:admin.php?q=1");
 }
 }
 
@@ -28,8 +28,19 @@ if(isset($_SESSION['key'])){
 if(@$_GET['demail1'] && $_SESSION['key']=='prasanth123') {
 $demail1=@$_GET['demail1'];
 
-$result = mysqli_query($con,"DELETE FROM admin WHERE email='$demail1' and role ='admin' ") or die('Error');
-header("location:headdash.php?q=5");
+$result = mysqli_query($con,"DELETE FROM user WHERE email='$demail1' and role ='teacher' ") or die('Error');
+header("location:admin.php?q=5");
+}
+}
+
+//delete head
+
+if(isset($_SESSION['key'])){
+if(@$_GET['demail1'] && $_SESSION['key']=='prasanth123') {
+$demail1=@$_GET['demail1'];
+
+$result = mysqli_query($con,"DELETE FROM user WHERE email='$demail1' and role ='head' ") or die('Error');
+header("location:admin.php?q=7");
 }
 }
 
@@ -58,12 +69,13 @@ if(isset($_SESSION['key'])){
 if(@$_GET['q']== 'addExam' && $_SESSION['key']=='prasanth123') {
 $name = $_POST['name'];
 $name= ucwords(strtolower($name));
+$department = $_POST['department'];
 $total = $_POST['total'];
 $mark = $_POST['right'];
 $time = $_POST['time'];
 $desc = $_POST['desc'];
 $id=uniqid();
-$q3=mysqli_query($con,"INSERT INTO exam VALUES  ('$id', '$name', '$mark','$total' , '$time' , '$desc', NOW() ,'$email')");
+$q3=mysqli_query($con,"INSERT INTO exam VALUES  ('$id', '$name', 'department', '$mark','$total' , '$time' , '$desc', NOW() ,'$email')");
 
 header("location:teacher.php?q=4&step=2&eid=$id&n=$total");
 }
@@ -230,21 +242,24 @@ $q=mysqli_query($con,"UPDATE `rank` SET `score`=$sun ,time=NOW() WHERE email= '$
 header("location:student.php?q=exam&step=2&eid=$eid&n=1&t=$t");
 }
 
-// Delete Student
+// Delete User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
   $id = intval($_POST['id']);
-  $stmt = mysqli_prepare($con, "DELETE FROM user WHERE id = ? AND role = 'student'");
-  mysqli_stmt_bind_param($stmt, 'i', $id);
+  $role = isset($_POST['role']) && in_array($_POST['role'], ['student', 'teacher', 'header']) ? $_POST['role'] : 'student';
+  
+  $stmt = mysqli_prepare($con, "DELETE FROM user WHERE id = ? AND role = ?");
+  mysqli_stmt_bind_param($stmt, 'is', $id, $role);
+
   if (mysqli_stmt_execute($stmt)) {
-      echo 'success';
+    echo 'success';
   } else {
-      echo 'error';
+    echo 'error';
   }
 }
+
 // ADD Student
 if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
 
-  // Retrieve form inputs
   $name = $_POST['name'];
   $fatherName = $_POST['fatherName'];
   $email = $_POST['email'];
@@ -253,9 +268,8 @@ if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
   $college = $_POST['college'];
   $department = $_POST['department'];
   $phone = $_POST['phone'];
-  $role = 'student'; // Default role
+  $role = 'student'; 
 
-  // Prepare and execute insert query
   $query = "INSERT INTO user (email, password, name, fatherName, gender, college, department, phone, role) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
   $stmt = $con->prepare($query);
@@ -271,5 +285,27 @@ if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
   $con->close();
 }
 
+// Add user
+if (isset($_GET['q']) && $_GET['q'] == 'addUser' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+  $name = $_POST['name'];
+  $fatherName = $_POST['fatherName'] ?? '';
+  $email = $_POST['email'];
+  $password = $_POST['password'];
+  $gender = $_POST['gender'];
+  $college = $_POST['college'];
+  $department = $_POST['department'];
+  $phone = $_POST['phone'];
+  $role = $_POST['role'];
 
-?>
+  $stmt = mysqli_prepare($con, "INSERT INTO user (name, fatherName, email, password, gender, college, department, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  mysqli_stmt_bind_param($stmt, "sssssssss", $name, $fatherName, $email, $password, $gender, $college, $department, $phone, $role);
+  if (mysqli_stmt_execute($stmt)) {
+      header("Location: admin.php?q=0"); // or any confirmation page
+      exit();
+  } else {
+      echo "Error: " . mysqli_error($con);
+  }
+}
+
+
+// ?>

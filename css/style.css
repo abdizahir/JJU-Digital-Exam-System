@@ -13,11 +13,14 @@ body {
 }
 input,
 textarea {
-  border: solid 1px #3d52a0 !important;
+  border: solid 1px #ccc !important;
   border-radius: 6px !important;
   outline: none !important;
   padding-block: 2rem !important;
-  background-color: #ede8f5 !important;
+  background-color: transparent !important;
+}
+.search-table label {
+  color: #777;
 }
 
 /*! -------------------- NAVBAR ------------------- */
@@ -111,12 +114,7 @@ textarea {
   font-size: 18px; 
   color: #3d52a0;
 }
-.search-table {
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 10px;
-}
+
 @media (max-width: 800px) {
   .main-header h1 {
     font-size: 28px;
@@ -131,14 +129,6 @@ textarea {
   }
   .login-container .secondary-button {
     font-size: 14px;
-  }
-  .search-table {
-    flex-direction: column;
-    gap: 20px;
-    justify-content: center;
-  }
-  .search-table select {
-    justify-self: end;
   }
 }
 @media (max-width: 500px) {
@@ -174,8 +164,8 @@ textarea {
 
 /*! ---------------- STUDENT PAGE MAIN --------------- */
 .main-container {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 70px;
+  margin-left: 70px;
   padding: 20px;
 }
 .filter-form-container {
@@ -191,6 +181,12 @@ textarea {
   align-items: center;
   gap: 3rem;
 }
+@media (max-width: 700px) {
+  .add-exam-form {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
 .move-right {
  margin-left: 210px;
 }
@@ -285,6 +281,19 @@ textarea {
   .section-panel .exam-table tr th:nth-child(1) {
     display: none;
   }
+  /* admin & header & teacher 'Phone' column */
+  .section-panel .view-table tr td:nth-child(6),
+  .section-panel .view-table tr th:nth-child(6) {
+    display: none;
+  }
+  /* admin & header & teacher 'Phone' column */
+  .section-panel .r-view-table tr td:nth-child(6),
+  .section-panel .r-view-table tr th:nth-child(6) {
+    display: none;
+  }
+  .question-panel {
+    padding: 0 10px !important;
+  }
 }
 
 @media (max-width: 900px) {
@@ -306,6 +315,21 @@ textarea {
   /* Teacher 'NO.' column */
   .section-panel .t-remove-table tr td:nth-child(1),
   .section-panel .t-remove-table tr th:nth-child(1) {
+    display: none;
+  }
+  /* admin 'Email' column */
+  .section-panel .recent-table tr td:nth-child(3),
+  .section-panel .recent-table tr th:nth-child(3) {
+    display: none;
+  }
+  /* admin & header & teacher 'Email' column */
+  .section-panel .view-table tr td:nth-child(3),
+  .section-panel .view-table tr th:nth-child(3) {
+    display: none;
+  }
+  /* admin & header & teacher 'Email' column */
+  .section-panel .r-view-table tr td:nth-child(3),
+  .section-panel .r-view-table tr th:nth-child(3) {
     display: none;
   }
 
@@ -346,9 +370,14 @@ textarea {
   .section-panel .t-remove-table tr th:nth-child(3) {
     display: none;
   }
-  /* Teacher 'Collage' column */
-  .section-panel .t-student-table tr td:nth-child(4),
-  .section-panel .t-student-table tr th:nth-child(4) {
+  /* Teacher 'gender' column */
+  .section-panel .t-ranking-table tr td:nth-child(3),
+  .section-panel .t-ranking-table tr th:nth-child(3) {
+    display: none;
+  }
+  /* admin 'College' column */
+  .section-panel .recent-table tr td:nth-child(5),
+  .section-panel .recent-table tr th:nth-child(5) {
     display: none;
   }
 }
@@ -363,6 +392,16 @@ textarea {
   /* Teacher 'No.' column */
   .section-panel .t-exam-table tr td:nth-child(1),
   .section-panel .t-exam-table tr th:nth-child(1) {
+    display: none;
+  }
+  /* admin & header & teacher 'College' column */
+  .section-panel .view-table tr td:nth-child(4),
+  .section-panel .view-table tr th:nth-child(4) {
+    display: none;
+  }
+  /* admin & header & teacher 'College' column */
+  .section-panel .r-view-table tr td:nth-child(4),
+  .section-panel .r-view-table tr th:nth-child(4) {
     display: none;
   }
 }
@@ -390,9 +429,19 @@ textarea {
   .section-panel .t-exam-table tr th:nth-child(4) {
     display: none;
   }
-  /* Teacher 'Email' column */
-  .section-panel .t-student-table tr td:nth-child(3),
-  .section-panel .t-student-table tr th:nth-child(3) {
+  /* admin 'Role' column */
+  .section-panel .recent-table tr td:nth-child(4),
+  .section-panel .recent-table tr th:nth-child(4) {
+    display: none;
+  }
+  /* admin & header & teacher 'Department' column */
+  .section-panel .view-table tr td:nth-child(5),
+  .section-panel .view-table tr th:nth-child(5) {
+    display: none;
+  }
+  /* Teacher 'college' column */
+  .section-panel .t-ranking-table tr td:nth-child(4),
+  .section-panel .t-ranking-table tr th:nth-child(4) {
     display: none;
   }
 }
@@ -403,13 +452,9 @@ textarea {
   .section-panel .history-table tr th:nth-child(1) {
     display: none;
   }
-  /* Teacher 'Phone' column */
-  .section-panel .t-student-table tr td:nth-child(5),
-  .section-panel .t-student-table tr th:nth-child(5) {
-    display: none;
-  }
 }
 /* table end */
+
 
 
 /*! Login From Modal*/
@@ -444,7 +489,7 @@ textarea {
   background-color: white;
   border-radius: 1rem;
   box-shadow: 0 0 30px -15px #3d52a0;
-  min-width: 300px;
+  min-width: 200px;
 }
 .question-panel {
   padding: 0 50px;
@@ -458,6 +503,12 @@ textarea {
   padding-block: 14px;
   width: 30%;
 }
+.search-table {
+  display: flex; 
+  justify-content: space-around; 
+  align-items: center; 
+  margin-bottom: 10px;
+}
 @media (max-width: 600px) {
   .section-panel {
     margin: 30px 20px;
@@ -469,11 +520,16 @@ textarea {
   .about-text {
     font-size: 16px !important;
   }
+  .search-table {
+    flex-direction: column;
+    gap: 2rem;
+    justify-content: center;
+    align-items: center;
+  }
 }
 @media (max-width: 500px) {
   .section-panel {
-    margin: 30px 0px;
-    padding: 5px;
+    margin: 10px 0px;
   }
   .btn-container .primary-button {
     font-size: 12px;
@@ -481,6 +537,9 @@ textarea {
   }
   .main-container {
     padding: 20px 0;
+  }
+  .form-title {
+    font-size: 24px !important;
   }
 }
 .btn-container {
@@ -736,7 +795,7 @@ textarea {
 
 /*! -------------------- SLIDE ANIMATIONS ------------------- */
 .slideanim {
-  visibility: hidden;
+  /* visibility: hidden; */
 }
 .slide {
   animation-name: slide;
@@ -848,4 +907,52 @@ textarea {
 }
 .dropdown option:hover {
   background-color: #ede8f5;
+}
+
+.radio-option input[type='radio'] { 
+  transform: scale(2); 
+  margin: 0 1em;
+  font-size: 1em;
+}
+
+/* choose answer */
+.radio-option {
+  display: flex;
+  align-items: center;
+  border: 2px solid #adbbdaa2;
+  border-radius: 8px;
+  padding: 10px 15px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+@media (max-width: 700px) {
+  .radio-option {
+    font-size: 14px;
+    padding: 10px 5px;
+  }
+  .radio-option input[type='radio'] { 
+    margin: 0 0.2em;
+  }
+}
+
+.radio-option:hover {
+  background-color: #3d52a050;
+}
+
+.radio-option input[type="radio"] {
+  accent-color: #3d52a0;
+  margin-right: 10px;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + .answer-text {
+  font-weight: bold;
+  color: #2e3d75;
+}
+
+.answer-text {
+  user-select: none;
 }
