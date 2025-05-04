@@ -64,73 +64,85 @@ header("location:teacher.php?q=5");
 }
 }
 
-//add exam
-if(isset($_SESSION['key'])){
-if(@$_GET['q']== 'addExam' && $_SESSION['key']=='prasanth123') {
-$name = $_POST['name'];
-$name= ucwords(strtolower($name));
-$department = $_POST['department'];
-$total = $_POST['total'];
-$mark = $_POST['right'];
-$time = $_POST['time'];
-$desc = $_POST['desc'];
-$id=uniqid();
-$q3=mysqli_query($con,"INSERT INTO exam VALUES  ('$id', '$name', 'department', '$mark','$total' , '$time' , '$desc', NOW() ,'$email')");
+// Add Exam
+if (isset($_SESSION['key'])) {
+    if (@$_GET['q'] == 'addExam') {
 
-header("location:teacher.php?q=4&step=2&eid=$id&n=$total");
+        $email = $_SESSION['email'];  
+        $getTeacherIdQuery = "SELECT id, department_id FROM user WHERE email = '$email'";
+        $getTeacherIdResult = mysqli_query($con, $getTeacherIdQuery) or die('Error fetching teacher ID');
+        $teacher = mysqli_fetch_assoc($getTeacherIdResult);
+        $creator_id = $teacher['id'];
+        $department_id = $teacher['department_id'];
+
+        $name = ucwords(strtolower(mysqli_real_escape_string($con, $_POST['name'])));
+        $year = mysqli_real_escape_string($con, $_POST['year']);
+        $total = (int) $_POST['total'];
+        $mark = (int) $_POST['right'];
+        $time = (int) $_POST['time'];
+        $desc = mysqli_real_escape_string($con, $_POST['desc']);
+
+        $query = "INSERT INTO exam (title, department_id, year, mark, total, time, intro, date, creator_id) 
+                  VALUES ('$name', '$department_id', '$year', '$mark', '$total', '$time', '$desc', NOW(), '$creator_id')";
+
+        $result = mysqli_query($con, $query) or die('Error inserting exam: ' . mysqli_error($con));
+
+        // ✅ Get last inserted exam ID
+        $eid = mysqli_insert_id($con);
+
+        header("Location: teacher.php?q=4&step=2&eid=$eid&n=$total");
+        exit;
+    }
 }
-}
+
+
 
 //add question
-if(isset($_SESSION['key'])){
-if(@$_GET['q']== 'addqns' && $_SESSION['key']=='prasanth123') {
-$n=@$_GET['n'];
-$eid=@$_GET['eid'];
-$ch=@$_GET['ch'];
+if (isset($_SESSION['key'])) {
+    if (@$_GET['q'] == 'addqns' && $_SESSION['key'] == 'prasanth123') {
+        $n = @$_GET['n'];
+        $eid = @$_GET['eid'];
+        $ch = @$_GET['ch'];
 
-for($i=1;$i<=$n;$i++)
- {
- $qid=uniqid();
- $qns=$_POST['qns'.$i];
-$q3=mysqli_query($con,"INSERT INTO questions VALUES  ('$eid','$qid','$qns' , '$ch' , '$i')");
-  $oaid=uniqid();
-  $obid=uniqid();
-$ocid=uniqid();
-$odid=uniqid();
-$a=$_POST[$i.'1'];
-$b=$_POST[$i.'2'];
-$c=$_POST[$i.'3'];
-$d=$_POST[$i.'4'];
-$qa=mysqli_query($con,"INSERT INTO options VALUES  ('$qid','$a','$oaid')") or die('Error61');
-$qb=mysqli_query($con,"INSERT INTO options VALUES  ('$qid','$b','$obid')") or die('Error62');
-$qc=mysqli_query($con,"INSERT INTO options VALUES  ('$qid','$c','$ocid')") or die('Error63');
-$qd=mysqli_query($con,"INSERT INTO options VALUES  ('$qid','$d','$odid')") or die('Error64');
-$e=$_POST['ans'.$i];
-switch($e)
-{
-case 'a':
-$ansid=$oaid;
-break;
-case 'b':
-$ansid=$obid;
-break;
-case 'c':
-$ansid=$ocid;
-break;
-case 'd':
-$ansid=$odid;
-break;
-default:
-$ansid=$oaid;
+        for ($i = 1; $i <= $n; $i++) {
+            $qid = uniqid();
+            $qns = $_POST['qns' . $i];
+
+            // Fixed insert with correct column order
+            $q3 = mysqli_query($con, "INSERT INTO questions (qid, eid, qns, choice, sn) VALUES ('$qid', '$eid', '$qns', '$ch', '$i')") or die('Error inserting question');
+
+            // Insert options
+            $oaid = uniqid();
+            $obid = uniqid();
+            $ocid = uniqid();
+            $odid = uniqid();
+
+            $a = $_POST[$i . '1'];
+            $b = $_POST[$i . '2'];
+            $c = $_POST[$i . '3'];
+            $d = $_POST[$i . '4'];
+
+            mysqli_query($con, "INSERT INTO options (qid, option, optionid) VALUES ('$qid','$a','$oaid')") or die('Error61');
+            mysqli_query($con, "INSERT INTO options (qid, option, optionid) VALUES ('$qid','$b','$obid')") or die('Error62');
+            mysqli_query($con, "INSERT INTO options (qid, option, optionid) VALUES ('$qid','$c','$ocid')") or die('Error63');
+            mysqli_query($con, "INSERT INTO options (qid, option, optionid) VALUES ('$qid','$d','$odid')") or die('Error64');
+
+            $e = $_POST['ans' . $i];
+            switch ($e) {
+                case 'a': $ansid = $oaid; break;
+                case 'b': $ansid = $obid; break;
+                case 'c': $ansid = $ocid; break;
+                case 'd': $ansid = $odid; break;
+                default:  $ansid = $oaid; break;
+            }
+
+            mysqli_query($con, "INSERT INTO answer (qid, ansid) VALUES ('$qid', '$ansid')") or die('Error inserting answer');
+        }
+
+        header("location:teacher.php?q=0");
+    }
 }
 
-
-$qans=mysqli_query($con,"INSERT INTO answer VALUES  ('$qid','$ansid')");
-
- }
-header("location:teacher.php?q=0");
-}
-}
 
 //exam start
 if(@$_GET['q']== 'exam' && @$_GET['step']== 2) {
@@ -245,10 +257,10 @@ header("location:student.php?q=exam&step=2&eid=$eid&n=1&t=$t");
 // Delete User
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
   $id = intval($_POST['id']);
-  $role = isset($_POST['role']) && in_array($_POST['role'], ['student', 'teacher', 'header']) ? $_POST['role'] : 'student';
-  
-  $stmt = mysqli_prepare($con, "DELETE FROM user WHERE id = ? AND role = ?");
-  mysqli_stmt_bind_param($stmt, 'is', $id, $role);
+  error_log("Deleting user: id=$id");
+
+  $stmt = mysqli_prepare($con, "DELETE FROM user WHERE id = ? ");
+  mysqli_stmt_bind_param($stmt, 'i', $id);
 
   if (mysqli_stmt_execute($stmt)) {
     echo 'success';
@@ -256,6 +268,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     echo 'error';
   }
 }
+
+
 
 // ADD Student
 if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
@@ -288,24 +302,119 @@ if (isset($_GET['q']) && $_GET['q'] == 'addStudent') {
 // Add user
 if (isset($_GET['q']) && $_GET['q'] == 'addUser' && $_SERVER['REQUEST_METHOD'] === 'POST') {
   $name = $_POST['name'];
-  $fatherName = $_POST['fatherName'] ?? '';
+  $fatherName = $_POST['fatherName'] ?? '-';
   $email = $_POST['email'];
   $password = $_POST['password'];
   $gender = $_POST['gender'];
-  $college = $_POST['college'];
-  $department = $_POST['department'];
+  $college_id = $_POST['college_id'];
   $phone = $_POST['phone'];
   $role = $_POST['role'];
 
-  $stmt = mysqli_prepare($con, "INSERT INTO user (name, fatherName, email, password, gender, college, department, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-  mysqli_stmt_bind_param($stmt, "sssssssss", $name, $fatherName, $email, $password, $gender, $college, $department, $phone, $role);
+  // If role is not header, get department and section; otherwise set to NULL
+  $department_id = (!empty($_POST['department_id'])) ? (int)$_POST['department_id'] : null;
+  $section_id = (!empty($_POST['section_id'])) ? (int)$_POST['section_id'] : null;
+
+
+  $stmt = mysqli_prepare($con, "INSERT INTO user (name, fatherName, email, password, gender, college_id, department_id, section_id, phone, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+  // Use "s" for strings, "i" for integers, and pass nulls correctly
+  mysqli_stmt_bind_param(
+      $stmt,
+      "sssssiisss",
+      $name,
+      $fatherName,
+      $email,
+      $password,
+      $gender,
+      $college_id,
+      $department_id,
+      $section_id,
+      $phone,
+      $role
+  );
+
   if (mysqli_stmt_execute($stmt)) {
-      header("Location: admin.php?q=0"); // or any confirmation page
-      exit();
+    if (isset($_SESSION['role'])) {
+        if ($_SESSION['role'] === 'admin') {
+            header("Location: admin.php?q=0");
+        } elseif ($_SESSION['role'] === 'header') {
+            header("Location: header.php?q=0");
+        } else {
+            // Optional: handle unknown role or redirect to a default page
+            header("Location: index.php");
+        }
+        exit();
+    } else {
+        // If role is not set, redirect to login
+        header("Location: login.php");
+        exit();
+    }
   } else {
       echo "Error: " . mysqli_error($con);
   }
 }
+
+// Add College or Department
+if (isset($_GET['q']) && $_GET['q'] === 'addCollegeDept' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+  // Add College
+  if (!empty($_POST['collegeName'])) {
+      $collegeName = trim($_POST['collegeName']);
+      $stmt = mysqli_prepare($con, "INSERT INTO colleges (name) VALUES (?)");
+      mysqli_stmt_bind_param($stmt, "s", $collegeName);
+
+      if (mysqli_stmt_execute($stmt)) {
+          header("Location: admin.php?q=6&success=college");
+          exit();
+      } else {
+          echo "Error adding college: " . mysqli_error($con);
+      }
+  }
+
+  // Add Department
+  elseif (!empty($_POST['departmentName']) && !empty($_POST['departmentCollege'])) {
+      $departmentName = trim($_POST['departmentName']);
+      $collegeId = intval($_POST['departmentCollege']);
+
+      $stmt = mysqli_prepare($con, "INSERT INTO departments (name, college_id) VALUES (?, ?)");
+      mysqli_stmt_bind_param($stmt, "si", $departmentName, $collegeId);
+
+      if (mysqli_stmt_execute($stmt)) {
+          header("Location: admin.php?q=6&success=department");
+          exit();
+      } else {
+          echo "Error adding department: " . mysqli_error($con);
+      }
+  }
+
+  else {
+      echo "Invalid input. Please go back and check the form.";
+  }
+}
+
+// Handle College or Department Deletion
+if (isset($_GET['q']) && $_GET['q'] === 'deleteCollegeDept' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+  $type = $_POST['type'];
+  $id = intval($_POST['id']);
+
+  if ($type === 'college') {
+      $stmt = mysqli_prepare($con, "DELETE FROM colleges WHERE id = ?");
+  } elseif ($type === 'department') {
+      $stmt = mysqli_prepare($con, "DELETE FROM departments WHERE id = ?");
+  } else {
+      echo "Invalid deletion type.";
+      exit;
+  }
+
+  mysqli_stmt_bind_param($stmt, "i", $id);
+
+  if (mysqli_stmt_execute($stmt)) {
+      header("Location: admin.php?q=4");
+      exit();
+  } else {
+      echo "Error deleting: " . mysqli_error($con);
+  }
+}
+
 
 
 // ?>

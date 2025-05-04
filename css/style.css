@@ -275,6 +275,13 @@ textarea {
   margin-right: 8px;
 }
 /* table */
+@media (max-width: 1100px) {
+  /* admin 'Section' column */
+  .section-panel .recent-table tr td:nth-child(7),
+  .section-panel .recent-table tr th:nth-child(7) {
+    display: none;
+  }
+}
 @media (max-width: 1024px) {
   /* Hide 'NO.' column */
   .section-panel .exam-table tr td:nth-child(1),
@@ -289,6 +296,11 @@ textarea {
   /* admin & header & teacher 'Phone' column */
   .section-panel .r-view-table tr td:nth-child(6),
   .section-panel .r-view-table tr th:nth-child(6) {
+    display: none;
+  }
+  /* admin 'Email' column */
+  .section-panel .recent-table tr td:nth-child(3),
+  .section-panel .recent-table tr th:nth-child(3) {
     display: none;
   }
   .question-panel {
@@ -317,11 +329,6 @@ textarea {
   .section-panel .t-remove-table tr th:nth-child(1) {
     display: none;
   }
-  /* admin 'Email' column */
-  .section-panel .recent-table tr td:nth-child(3),
-  .section-panel .recent-table tr th:nth-child(3) {
-    display: none;
-  }
   /* admin & header & teacher 'Email' column */
   .section-panel .view-table tr td:nth-child(3),
   .section-panel .view-table tr th:nth-child(3) {
@@ -332,7 +339,11 @@ textarea {
   .section-panel .r-view-table tr th:nth-child(3) {
     display: none;
   }
-
+  /* admin 'College' column */
+  .section-panel .recent-table tr td:nth-child(5),
+  .section-panel .recent-table tr th:nth-child(5) {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
@@ -375,11 +386,6 @@ textarea {
   .section-panel .t-ranking-table tr th:nth-child(3) {
     display: none;
   }
-  /* admin 'College' column */
-  .section-panel .recent-table tr td:nth-child(5),
-  .section-panel .recent-table tr th:nth-child(5) {
-    display: none;
-  }
 }
 
 @media (max-width: 660px) {
@@ -402,6 +408,11 @@ textarea {
   /* admin & header & teacher 'College' column */
   .section-panel .r-view-table tr td:nth-child(4),
   .section-panel .r-view-table tr th:nth-child(4) {
+    display: none;
+  }
+  /* admin 'College' column */
+  .section-panel .d-view-table tr td:nth-child(2),
+  .section-panel .d-view-table tr th:nth-child(2) {
     display: none;
   }
 }
@@ -430,8 +441,8 @@ textarea {
     display: none;
   }
   /* admin 'Role' column */
-  .section-panel .recent-table tr td:nth-child(4),
-  .section-panel .recent-table tr th:nth-child(4) {
+  .section-panel .recent-table tr td:nth-child(6),
+  .section-panel .recent-table tr th:nth-child(6) {
     display: none;
   }
   /* admin & header & teacher 'Department' column */
@@ -956,3 +967,47 @@ textarea {
 .answer-text {
   user-select: none;
 }
+
+/* Delete modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        width: 300px;
+        max-width: 90%;
+        text-align: center;
+    }
+
+    .modal-actions {
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .btn-danger {
+        background-color: #d9534f;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }

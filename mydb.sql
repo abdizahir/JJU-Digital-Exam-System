@@ -1,15 +1,34 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Apr 29, 2025 at 12:36 PM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
+
+
+-- ------------ College Table ---------------
+CREATE TABLE colleges (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
+-- ------------ Department Table ---------------
+CREATE TABLE departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  college_id INT,
+  FOREIGN KEY (college_id) REFERENCES colleges(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- ------------ Sections Table ---------------
+CREATE TABLE sections (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(1) NOT NULL,
+  department_id INT,
+  FOREIGN KEY (department_id) REFERENCES departments(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
+
+
 
 -- ------------ User Table ---------------
 CREATE TABLE `user` (
@@ -19,20 +38,18 @@ CREATE TABLE `user` (
   `name` varchar(50) NOT NULL,
   `fatherName` varchar(50) DEFAULT NULL,
   `gender` ENUM('M', 'F') NOT NULL,
-  `college` varchar(100) DEFAULT NULL,
-  `department` VARCHAR(100) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `role` ENUM('student', 'teacher', 'header', 'admin') DEFAULT 'student',
-  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `year` ENUM('1st', '2nd', '3rd', '4th') DEFAULT null, 
+  `college_id` INT DEFAULT NULL,
+  `department_id` INT DEFAULT NULL,
+  `section_id` INT DEFAULT NULL,
+  
+  FOREIGN KEY (`college_id`) REFERENCES `colleges`(`id`) ON DELETE SET NULL,
+  FOREIGN KEY (`department_id`) REFERENCES `departments`(`id`) ON DELETE SET NULL,
+  FOREIGN KEY (`section_id`) REFERENCES `sections`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-INSERT INTO `user` (`id`, `email`, `password`, `name`, `fatherName`, `gender`, `college`, `department`, `phone`, `role`, `date`) VALUES
-(1, 'admin@gmail.com', 'admin', 'Admin', '','M', 'IOT', '', '251937480905', 'admin', NOW()),
-(100,'header@gmail.com', 'header','Header', '', 'M', 'IOT', '','84151', 'header', NOW()), 
-(500,'teacher@gmail.com', 'teacher','Teacher', '', 'M', 'IOT', '','84151', 'teacher', NOW()), 
-(1000, 'student@gmail.com', 'student', 'Student1', '','M', 'IOT', 'IT', '0123457', 'student', NOW()),
-(101, 'fowzy@gmail.com', 'fowzy', 'Fowzy', '','M', 'IOT', '', '0100223322', 'header', NOW()),
-(501, 'tensaye@gmail.com', 'tensaye', 'Tensaye', '','M', 'IOT', 'IT', '0100223311', 'teacher', NOW());
 
 -- ------------ Answer Table ---------------
 CREATE TABLE `answer` (
@@ -40,60 +57,21 @@ CREATE TABLE `answer` (
   `ansid` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `answer`
---
-
-INSERT INTO `answer` (`qid`, `ansid`) VALUES
-('q001', 'b'),
-('q002', 'b'),
-('q003', 'b'),
-('q004', 'b'),
-('680f5ee06f168', '680f5ee08b904'),
-('680f9751e038c', '680f975271d07'),
-('680f980d773f3', '680f980e8af9f'),
-('680f9afbb5d3a', '680f9afbdf0f7'),
-('680f9bf5045b2', '680f9bf5328a8'),
-('68109a01bf1e7', '68109a01e9509');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `exam`
---
-
 CREATE TABLE `exam` (
-  `eid` text NOT NULL,
-  `title` varchar(100) NOT NULL,
-  `mark` int(11) NOT NULL,
-  `total` int(11) NOT NULL,
-  `time` bigint(20) NOT NULL,
-  `intro` text NOT NULL,
-  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `email` varchar(50) DEFAULT NULL,
-  `department` varchar(100) NOT NULL
+  `eid` INT AUTO_INCREMENT PRIMARY KEY,     
+  `title` VARCHAR(100) NOT NULL,          
+  `mark` INT NOT NULL,                     
+  `total` INT NOT NULL,                 
+  `time` BIGINT NOT NULL,             
+  `intro` TEXT NOT NULL,        
+  `date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `creator_id` INT NOT NULL,                  
+  `department_id` INT NOT NULL,                
+  `year` ENUM('1st', '2nd', '3rd', '4th') DEFAULT NULL, 
+
+  FOREIGN KEY (`creator_id`) REFERENCES `user`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`department_id`) REFERENCES `departments`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `exam`
---
-
-INSERT INTO `exam` (`eid`, `title`, `mark`, `total`, `time`, `intro`, `date`, `email`, `department`) VALUES
-('quiz001', 'Basic Math Quiz', 1, 5, 5, 'Test your basic math skills!', '2025-04-28 10:16:44', 'teacher@gmail.com', 'IT'),
-('quiz002', 'Science Fundamentals', 2, 10, 10, 'A quiz about basic science concepts.', '2025-04-28 10:16:44', 'teacher@gmail.com' , 'IT'),
-('680f5e94f132e', 'Oprating System', 3, 1, 5, 'oprating system', '2025-04-28 10:55:16', 'teacher@gmail.com' , 'IT'),
-('680f961e49a96', 'Chava', 5, 1, 10, 'jj', '2025-04-28 14:52:14', 'teacher@gmail.com' , 'Computer Science'),
-('680f9728e223b', 'Nmn', 4, 1, 10, 'nmn', '2025-04-28 14:56:40', 'teacher@gmail.com' , 'IT'),
-('680f97d549b7b', 'Yy', 5, 1, 5, 'yy', '2025-04-28 14:59:33', 'teacher@gmail.com', 'Computer Science'),
-('680f9ad828e69', 'Bb', 5, 1, 10, 'bb', '2025-04-28 15:12:24', 'teacher@gmail.com', 'Computer Science'),
-('680f9bc1aaa25', 'Ww', 3, 1, 6, 'ww', '2025-04-28 15:16:17', 'teacher@gmail.com', 'Computer Science'),
-('681099bc0e8ee', 'Programing', 3, 1, 10, 'prog', '2025-04-29 09:19:56', 'fowzy@gmail.com', 'IT');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `history`
---
 
 CREATE TABLE `history` (
   `email` varchar(50) NOT NULL,
@@ -105,83 +83,11 @@ CREATE TABLE `history` (
   `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
---
--- Dumping data for table `history`
---
-
-INSERT INTO `history` (`email`, `eid`, `score`, `level`, `mark`, `wrong`, `date`) VALUES
-('student@gmail.com', 'quiz001', 4, 1, 4, 1, '2025-04-28 10:16:43'),
-('student@gmail.com', 'quiz002', 8, 2, 8, 2, '2025-04-28 10:16:43'),
-('student@gmail.com', '680f5e94f132e', 3, 1, 1, 0, '2025-04-28 10:57:14'),
-('student@gmail.com', '680f9728e223b', 4, 1, 1, 0, '2025-04-28 14:57:50'),
-('student@gmail.com', '680f97d549b7b', 0, 1, 0, 0, '2025-04-28 15:01:01'),
-('student@gmail.com', '680f9ad828e69', 5, 1, 1, 0, '2025-04-28 15:13:38'),
-('student@gmail.com', '680f9bc1aaa25', 3, 1, 1, 0, '2025-04-28 15:18:10'),
-('student@gmail.com', '681099bc0e8ee', 3, 1, 1, 0, '2025-04-29 09:21:40');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `options`
---
-
 CREATE TABLE `options` (
   `qid` varchar(50) NOT NULL,
   `option` varchar(5000) NOT NULL,
   `optionid` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
---
--- Dumping data for table `options`
---
-
-INSERT INTO `options` (`qid`, `option`, `optionid`) VALUES
-('q001', '3', 'a'),
-('q001', '4', 'b'),
-('q001', '5', 'c'),
-('q001', '6', 'd'),
-('q002', '10', 'a'),
-('q002', '15', 'b'),
-('q002', '20', 'c'),
-('q002', '25', 'd'),
-('q003', 'Earth', 'a'),
-('q003', 'Mars', 'b'),
-('q003', 'Venus', 'c'),
-('q003', 'Jupiter', 'd'),
-('q004', 'Oxygen', 'a'),
-('q004', 'Water', 'b'),
-('q004', 'Hydrogen', 'c'),
-('q004', 'Carbon Dioxide', 'd'),
-('680f5ee06f168', 'James Gosling', '680f5ee08b8f8'),
-('680f5ee06f168', 'Charles Babbage', '680f5ee08b904'),
-('680f5ee06f168', 'Dennis Ritchie', '680f5ee08b907'),
-('680f5ee06f168', 'Bjarne Stroustrup', '680f5ee08b909'),
-('680f9751e038c', '.php', '680f975271d07'),
-('680f9751e038c', 'jigjiga unity', '680f975271d10'),
-('680f9751e038c', 'Ahmed', '680f975271d25'),
-('680f9751e038c', 'Muhsin', '680f975271d26'),
-('680f980d773f3', 'central prossec unit', '680f980e8af96'),
-('680f980d773f3', 'Mahad', '680f980e8af9e'),
-('680f980d773f3', 'japan united', '680f980e8af9f'),
-('680f980d773f3', 'none', '680f980e8afa1'),
-('680f9afbb5d3a', '2', '680f9afbdf0f7'),
-('680f9afbb5d3a', '3', '680f9afbdf101'),
-('680f9afbb5d3a', '4', '680f9afbdf124'),
-('680f9afbb5d3a', '5', '680f9afbdf127'),
-('680f9bf5045b2', 'a', '680f9bf5328a8'),
-('680f9bf5045b2', 'v', '680f9bf5328b4'),
-('680f9bf5045b2', '', '680f9bf5328b7'),
-('680f9bf5045b2', '', '680f9bf5328b9'),
-('68109a01bf1e7', 'A programming language is a system of notation for writing computer programs. ', '68109a01e9509'),
-('68109a01bf1e7', '$REQUEST', '68109a01e9514'),
-('68109a01bf1e7', 'Dennis Ritchie', '68109a01e9517'),
-('68109a01bf1e7', 'none', '68109a01e9519');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `questions`
---
 
 CREATE TABLE `questions` (
   `eid` text NOT NULL,
@@ -191,21 +97,165 @@ CREATE TABLE `questions` (
   `sn` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
+CREATE TABLE `rank` (
+  `email` varchar(50) NOT NULL,
+  `score` int(11) NOT NULL,
+  `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+
+-- 
+-- 
+-- 
+-- 
+-- Insert into user (Admin)
+INSERT INTO `user` (`email`, `password`, `name`,`role`) VALUES
+('admin@gmail.com', 'admin', 'Admin', 'admin');
+
+INSERT INTO `colleges` (`name`) VALUES 
+('Engineering and Technology'),
+('Education and Behavioral Studies'),
+('Business economics'),
+('Social Sciences & Humanities'),
+('Natural and Computational Science');
+
+INSERT INTO `departments` (`name`, `college_id`) VALUES 
+('Civil Engineering', 1),                                 
+('Construction Technology and Management', 1),           
+('Electrical and Computer Engineering', 1),              
+('Hydraulics Engineering', 1),                           
+('Mechanical Engineering', 1),                           
+('Computer Science', 1),                                 
+('Information Technology', 1),                           
+('Software Engineering', 1),                             
+('Psychology', 2),                                       
+('Early Childhood Care and Education (ECCE)', 2),        
+('Educational Planning and Management', 2),              
+('Accounting', 3),                                       
+('Management', 3),                                       
+('Public administration', 3),                            
+('Development Management', 3),                           
+('Sociology', 4),                                        
+('Ethiopian Languages and Literature', 4),               
+('English Language and Literature', 4),                  
+('Arabic Language and Literature', 4),                   
+('Geography and Environmental Studies', 4),              
+('History and Heritage Management', 4),                  
+('Political Science and International Relations', 4),    
+('Biology', 5),                                          
+('Chemistry', 5),                                        
+('Physics', 5),                                          
+('Statistics', 5),                                       
+('Geology', 5);                                          
+
+INSERT INTO `sections` (`name`, `department_id`) VALUES 
+('A', 1), ('A', 2), ('A', 3), ('A', 4), ('A', 5), ('A', 6), ('A', 7), ('A', 8), ('A', 9), ('A', 10),
+('A', 11), ('A', 12), ('A', 13), ('A', 14), ('A', 15), ('A', 16), ('A', 17), ('A', 18), ('A', 19), 
+('A', 20), ('A', 21), ('A', 22), ('A', 23), ('A', 24), ('A', 25), ('A', 26), ('A', 27), ('B', 27);
+
+
+-- Insert into user (Headers)
+INSERT INTO `user` (`email`, `password`, `name`, `fatherName`, `gender`, `phone`, `role`, `college_id`, `department_id`) VALUES
+('header@gmail.com', 'header', 'Header', '', 'M', '251', 'header', 1, 1),
+('fatima@gmail.com', 'pass1234', 'Fatima', 'Mahmoed', 'F', '25191234561', 'header', 1, 18),
+('yousef@gmail.com', 'pass1234', 'Yousef', 'Abdullah', 'M', '25191234562', 'header', 4, 3),
+('noura@gmail.com', 'pass1234', 'Noura', 'Abdullah', 'F', '25191234563', 'header', 2, 11),
+('jamal@gmail.com', 'pass1234', 'Jamal', 'Hassan', 'M', '25191234564', 'header', 3, 12),
+('kassem@gmail.com', 'pass1234', 'Kassem', 'Ahmed', 'M', '25191234565', 'header', 5, 25);
+
+-- Insert into user (Teachers)
+INSERT INTO `user` (`email`, `password`, `name`, `fatherName`, `gender`, `phone`, `role`, `college_id`, `department_id`) VALUES
+('ahmed1@gmail.com', 'pass123', 'Ahmed ', 'Abdullah', 'M', '25192234561', 'teacher', 4, 22),
+('sarah1@gmail.com', 'pass123', 'Sarah', 'Ali', 'F', '25192234562', 'teacher', 3, 13),
+('osama1@gmail.com', 'pass123', 'Osama', 'Ahmed', 'M', '25192234563', 'teacher', 2, 11),
+('faiza1@gmail.com', 'pass123', 'Faiza', 'Mohamed', 'F', '25192234564', 'teacher', 4, 21),
+('abdullah1@gmail.com', 'pass123', 'Abdullah', 'Mohamed', 'M', '25192234565', 'teacher', 1, 8),
+('mohamed1@gmail.com', 'pass123', 'Mohamed', 'Ibrahim', 'M', '25192234566', 'teacher', 1, 3),
+('rania1@gmail.com', 'pass123', 'Rania', 'Omar', 'F', '25192234567', 'teacher', 1, 7),
+('khaled1@gmail.com', 'pass123', 'Khaled', 'Yassin', 'M', '25192234568', 'teacher', 4, 19),
+('layla1@gmail.com', 'pass123', 'Layla', 'Mansour', 'F', '25192234569', 'teacher', 4, 17),
+('mohamed2@gmail.com', 'pass123', 'Mohamed', 'Jamal', 'M', '25192234570', 'teacher', 1, 2),
+('huda1@gmail.com', 'pass123', 'Huda', 'Kamal', 'F', '25192234571', 'teacher', 4, 16),
+('ammar1@gmail.com', 'pass123', 'Ammar', 'Saeed', 'M', '25192234572', 'teacher', 5, 26),
+('nour1@gmail.com', 'pass123', 'Nour', 'Zaid', 'F', '25192234573', 'teacher', 3, 14),
+('tariq1@gmail.com', 'pass123', 'Tariq', 'Nasr', 'M', '25192234574', 'teacher', 2, 9),
+('nadine1@gmail.com', 'pass123', 'Nadine', 'Fadel', 'F', '25192234575', 'teacher', 1, 1);
+
+
+-- Insert into user (Student)
+INSERT INTO `user` (`email`, `password`, `name`, `fatherName`, `gender`, `phone`, `role`, `year`, `college_id`, `department_id`, `section_id`) VALUES
+('student@gmail.com', 'student', 'Student1', '','M', '251', 'student', '1st', 1, 7, 1),
+('student1@gmail.com', 'pass123', 'Ahmad', 'Nasser', 'M', '25192241001', 'student', '1st', 1, 1, 1),
+('student2@gmail.com', 'pass123', 'Youssef', 'Youssef', 'M', '25192241002', 'student', '2nd', 2, 9, 1),
+('student3@gmail.com', 'pass123', 'Sara', 'Jamal', 'F', '25192241003', 'student', '3rd', 3, 12, 1),
+('student4@gmail.com', 'pass123', 'Omar', 'Ahmed', 'M', '25192241004', 'student', '1st', 4, 19, 1),
+('student5@gmail.com', 'pass123', 'Layla', 'Khalil', 'F', '25192241005', 'student', '4th', 5, 24, 1),
+('student6@gmail.com', 'pass123', 'Reem', 'Fouad', 'F', '25192241006', 'student', '2nd', 1, 6, 1),
+('student7@gmail.com', 'pass123', 'Tariq', 'Amr', 'M', '25192241007', 'student', '3rd', 2, 10, 1),
+('student8@gmail.com', 'pass123', 'Maryam', 'Noor', 'F', '25192241008', 'student', '1st', 3, 13, 1),
+('student9@gmail.com', 'pass123', 'Khaled', 'Hatem', 'M', '25192241009', 'student', '4th', 4, 22, 1),
+('student10@gmail.com', 'pass123', 'Dina', 'Salem', 'F', '25192241010', 'student', '2nd', 5, 25, 1),
+('student11@gmail.com', 'pass123', 'Ali', 'Tamer', 'M', '25192241011', 'student', '1st', 1, 7, 1),
+('student12@gmail.com', 'pass123', 'Lina', 'Nabil', 'F', '25192241012', 'student', '3rd', 2, 11, 1),
+('student13@gmail.com', 'pass123', 'Hassan', 'Zaki', 'M', '25192241013', 'student', '2nd', 3, 15, 1),
+('student14@gmail.com', 'pass123', 'Nour', 'Mostafa', 'F', '25192241014', 'student', '4th', 4, 20, 1),
+('student15@gmail.com', 'pass123', 'Fathi', 'Jamal', 'M', '25192241015', 'student', '1st', 5, 23, 1),
+('student16@gmail.com', 'pass123', 'Ahmad', 'Fouad', 'M', '25192241016', 'student', '2nd', 1, 1, 1),
+('student17@gmail.com', 'pass123', 'Reem', 'Nasser', 'F', '25192241017', 'student', '3rd', 2, 9, 1),
+('student18@gmail.com', 'pass123', 'Tariq', 'Ziad', 'M', '25192241018', 'student', '4th', 3, 14, 1),
+('student19@gmail.com', 'pass123', 'Layla', 'Hatem', 'F', '25192241019', 'student', '1st', 4, 18, 1),
+('student20@gmail.com', 'pass123', 'Khaled', 'Amr', 'M', '25192241020', 'student', '2nd', 5, 26, 1),
+('student21@gmail.com', 'pass123', 'Sara', 'Tamer', 'F', '25192241021', 'student', '3rd', 1, 2, 1),
+('student22@gmail.com', 'pass123', 'Ali', 'Noor', 'M', '25192241022', 'student', '4th', 2, 10, 1),
+('student23@gmail.com', 'pass123', 'Maya', 'Zaki', 'F', '25192241023', 'student', '1st', 3, 13, 1),
+('student24@gmail.com', 'pass123', 'Omar', 'Salem', 'M', '25192241024', 'student', '2nd', 4, 17, 1),
+('student25@gmail.com', 'pass123', 'Lina', 'Khalil', 'F', '25192241025', 'student', '3rd', 5, 21, 1),
+('student26@gmail.com', 'pass123', 'Ahmad', 'Ziad', 'M', '25192241026', 'student', '1st', 1, 4, 1),
+('student27@gmail.com', 'pass123', 'Dina', 'Fathi', 'F', '25192241027', 'student', '2nd', 2, 11, 1),
+('student28@gmail.com', 'pass123', 'Hassan', 'Mostafa', 'M', '25192241028', 'student', '3rd', 3, 12, 1),
+('student29@gmail.com', 'pass123', 'Nour', 'Jamal', 'F', '25192241029', 'student', '4th', 4, 16, 1),
+('student30@gmail.com', 'pass123', 'Youssef', 'Nabil', 'M', '25192241030', 'student', '1st', 5, 24, 1);
+
+
+
+
+
+--
+-- Table structure for table `exam`
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `history`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `options`
+--
+
+
+--
+-- Dumping data for table `options`
+--
+
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `questions`
+--
+
+
 --
 -- Dumping data for table `questions`
 --
 
-INSERT INTO `questions` (`eid`, `qid`, `qns`, `choice`, `sn`) VALUES
-('quiz001', 'q001', 'What is 2 + 2?', 4, 1),
-('quiz001', 'q002', 'What is 5 * 3?', 4, 2),
-('quiz002', 'q003', 'What planet is known as the Red Planet?', 4, 1),
-('quiz002', 'q004', 'What is H2O commonly known as?', 4, 2),
-('680f5e94f132e', '680f5ee06f168', 'Who is the father of Computers?\r\n\r\n', 4, 1),
-('680f9728e223b', '680f9751e038c', 'what is php', 4, 1),
-('680f97d549b7b', '680f980d773f3', 'whats cpu', 4, 1),
-('680f9ad828e69', '680f9afbb5d3a', '1+1', 4, 1),
-('680f9bc1aaa25', '680f9bf5045b2', 'what is ww', 4, 1),
-('681099bc0e8ee', '68109a01bf1e7', 'what is programing', 4, 1);
 
 -- --------------------------------------------------------
 
@@ -213,11 +263,6 @@ INSERT INTO `questions` (`eid`, `qid`, `qns`, `choice`, `sn`) VALUES
 -- Table structure for table `rank`
 --
 
-CREATE TABLE `rank` (
-  `email` varchar(50) NOT NULL,
-  `score` int(11) NOT NULL,
-  `time` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 --
 -- Dumping data for table `rank`

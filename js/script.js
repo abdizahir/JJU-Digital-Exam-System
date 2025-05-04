@@ -29,14 +29,6 @@ document.getElementById('login-form').addEventListener('submit', function (e) {
 });
 
 
-//  SideNav Toggle 
-document.getElementById('sidenav-btn').addEventListener('click', function () {
-  console.log('clicked')
-  const sidebar = document.getElementById('sidenav');
-  sidebar.classList.toggle('side-nav-small');
-  sidebar.classList.toggle('side-nav-big');
-});
-
 $(document).ready(function () {
   $(".navbar a, footer a[href='#myPage']").on('click', function (event) {
     if (this.hash !== '') {

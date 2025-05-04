@@ -86,7 +86,7 @@
                         <li <?php if(@$_GET['q']==4) echo'class="active"'; ?>>
                             <a href="header.php?q=4">
                                 <span class="glyphicon glyphicon-plus bigger-icons" aria-hidden="true"></span>
-                                <div class="sidenav-txt side-nav-text">&nbsp;Add Student</div>
+                                <div class="sidenav-txt side-nav-text">&nbsp;Add User</div>
                             </a>
                         </li>
                         <li>
@@ -113,6 +113,7 @@
         <h2 style="margin-bottom: 20px;">Dashboard Overview</h2>
 
         <?php
+        // Count the number of users based on their roles
         $student_count = mysqli_num_rows(mysqli_query($con, "SELECT id FROM user WHERE role='student'"));
         $teacher_count = mysqli_num_rows(mysqli_query($con, "SELECT id FROM user WHERE role='teacher'"));
         $header_count = mysqli_num_rows(mysqli_query($con, "SELECT id FROM user WHERE role='header'"));
@@ -140,7 +141,7 @@
 
         <br><br>
         <h3>Recent Users</h3>
-        <table class="table recent-table">
+        <table class="recent-table table  title1">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -148,45 +149,69 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>College</th>
+                    <th>Department</th>
+                    <th>Section</th>
                     <th>Registered At</th>
                 </tr>
             </thead>
-                <?php
-                $recent_users = mysqli_query($con, "SELECT * FROM user WHERE role NOT IN ('admin', 'header') ORDER BY id DESC LIMIT 5");
-                while ($user = mysqli_fetch_array($recent_users)) {
-                    $formatted_date = date("Y-m-d", strtotime($user['date']));
-                    echo '<tr>';
-                    echo '<td>' . $user['id'] . '</td>';
-                    echo '<td>' . htmlspecialchars($user['name']) . '</td>';
-                    echo '<td>' . htmlspecialchars($user['email']) . '</td>';
-                    echo '<td>' . ucfirst($user['role']) . '</td>';
-                    echo '<td>' . htmlspecialchars($user['college']) . '</td>';
-                    echo '<td>' . $formatted_date . '</td>';
-                    echo '</tr>';
-                }
-                ?>
+            <?php
+            // Fetch recent users, joining with the necessary tables to get college, department, and section names
+            $recent_users = mysqli_query($con, "
+                SELECT user.id, user.name, user.email, user.role, user.date, 
+                       colleges.name AS college_name, 
+                       departments.name AS department_name, 
+                       sections.name AS section_name
+                FROM user
+                LEFT JOIN colleges ON user.college_id = colleges.id
+                LEFT JOIN departments ON user.department_id = departments.id
+                LEFT JOIN sections ON user.section_id = sections.id
+                WHERE user.role NOT IN ('admin', 'header')
+                ORDER BY user.id DESC 
+                LIMIT 5
+            ");
+            while ($user = mysqli_fetch_array($recent_users)) {
+                $formatted_date = date("Y-m-d", strtotime($user['date']));
+
+                // Check for null values and replace with dash
+                $college_name = $user['college_name'] ? htmlspecialchars($user['college_name']) : '-';
+                $department_name = $user['department_name'] ? htmlspecialchars($user['department_name']) : '-';
+                $section_name = $user['section_name'] ? htmlspecialchars($user['section_name']) : '-';
+
+                echo '<tr>';
+                echo '<td>' . $user['id'] . '</td>';
+                echo '<td>' . htmlspecialchars($user['name']) . '</td>';
+                echo '<td>' . htmlspecialchars($user['email']) . '</td>';
+                echo '<td>' . ucfirst($user['role']) . '</td>';
+                echo '<td>' . $college_name . '</td>';
+                echo '<td>' . $department_name . '</td>';
+                echo '<td>' . $section_name . '</td>';
+                echo '<td>' . $formatted_date . '</td>';
+                echo '</tr>';
+            }
+            ?>
         </table>
     </div>
 <?php endif; ?>
-
 <!-- Home End -->
+
 
 <!-- View Students Start -->
 <?php if (@$_GET['q'] == 1): ?>
     <div class="section-panel">
         <div class="search-table">
-            <!-- Search Input (left) -->
             <div style="position: relative;">
-                <label for="studentSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
-                <input type="text" id="studentSearch" class="form-control"  style="padding-block: 4px !important;">
+                <label for="userSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
+                <input type="text" id="userSearch" class="form-control" style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
-            <select id="departmentFilter" class="form-control" style="width: 200px;">
+            <select id="userFilter" class="form-control" style="width: 200px;">
                 <option value="">All Departments</option>
                 <?php
                 // Fetch distinct departments for the filter
-                $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'student' ORDER BY department ASC") or die('Error fetching departments');
+                $dept_result = mysqli_query($con, "SELECT DISTINCT departments.name AS department FROM user 
+                LEFT JOIN departments ON user.department_id = departments.id 
+                WHERE user.role = 'student' ORDER BY department ASC") or die('Error fetching departments');
                 while ($dept_row = mysqli_fetch_array($dept_result)) {
                     $department = htmlspecialchars($dept_row['department']);
                     echo "<option value=\"$department\">$department</option>";
@@ -195,7 +220,7 @@
             </select>
         </div>
 
-        <table class="view-table table title1" id="studentsTable">
+        <table class="view-table table title1" id="usersTable">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -204,101 +229,46 @@
                     <th>College</th>
                     <th>Department</th>
                     <th>Phone</th>
-                    <th>Delete</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'student' ORDER BY id ASC") or die('Error fetching students');
+                // Fetch students along with related college and department names
+                $result = mysqli_query($con, "SELECT user.id, user.name, user.email, user.phone,  colleges.name AS college_name, departments.name AS department_name
+                FROM user
+                LEFT JOIN colleges ON user.college_id = colleges.id
+                LEFT JOIN departments ON user.department_id = departments.id
+                WHERE user.role = 'student'
+                ORDER BY user.id ASC") or die('Error fetching students');
                 while ($row = mysqli_fetch_array($result)) {
+                    // Check if college and department are null, and replace them with '-'
+                    $college_name = $row['college_name'] ? htmlspecialchars($row['college_name']) : '-';
+                    $department_name = $row['department_name'] ? htmlspecialchars($row['department_name']) : '-';
+
                     echo '<tr data-id="' . $row['id'] . '">';
                     echo '<td>' . $row['id'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['name']) . ' ' . htmlspecialchars($row['fatherName']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['name']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['email']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['college']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['department']) . '</td>';
+                    echo '<td>' . $college_name . '</td>';
+                    echo '<td>' . $department_name . '</td>';
                     echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
-                    echo '<td><button class="delete-btn" data-id="' . $row['id'] . '" style="border: none; background: none; cursor: pointer;"><i class="fa fa-trash" style="color: red;"></i></button></td>';
-
+                    echo '<td>
+                            <button 
+                                class="danger-button user-delete" style="padding: 8px 12px" 
+                                data-id="' . $row['id'] . '"
+                            >
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </td>';
                     echo '</tr>';
                 }
                 ?>
             </tbody>
         </table>
     </div>
-
-    <script>
-    let selectedStudentId = null;
-
-    function closeModal() {
-        document.getElementById('deleteModal').style.display = 'none';
-        selectedStudentId = null;
-    }
-
-    function openModal(studentId) {
-        selectedStudentId = studentId;
-        document.getElementById('deleteModal').style.display = 'flex';
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('studentSearch');
-        const departmentFilter = document.getElementById('departmentFilter');
-        const rows = document.querySelectorAll('#studentsTable tbody tr');
-
-        function filterTable() {
-            const searchValue = searchInput.value.toLowerCase();
-            const selectedDept = departmentFilter.value.toLowerCase();
-
-            rows.forEach(row => {
-                const name = row.children[1].textContent.toLowerCase();
-                const department = row.children[4].textContent.toLowerCase();
-
-                const matchesSearch = name.includes(searchValue);
-                const matchesDepartment = selectedDept === '' || department === selectedDept;
-
-                row.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
-            });
-        }
-
-        searchInput.addEventListener('keyup', filterTable);
-        departmentFilter.addEventListener('change', filterTable);
-
-        document.querySelectorAll('.delete-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const studentId = this.getAttribute('data-id');
-                openModal(studentId);
-            });
-        });
-
-        document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
-            if (!selectedStudentId) return;
-
-            fetch('update.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'id=' + encodeURIComponent(selectedStudentId)
-            })
-            .then(response => response.text())
-            .then(result => {
-                if (result.trim() === 'success') {
-                    const row = document.querySelector('tr[data-id="' + selectedStudentId + '"]');
-                    if (row) row.remove();
-                    closeModal();
-                } else {
-                    alert('Failed to delete student.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred.');
-            });
-        });
-    });
-</script>
-
 <?php endif; ?>
 <!-- View Students End -->
-
 
 
 
@@ -306,17 +276,19 @@
 <?php if (@$_GET['q'] == 2): ?>
     <div class="section-panel">
         <div class="search-table">
-            <!-- Search Input (left) -->
             <div style="position: relative;">
-                <label for="teacherSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
-                <input type="text" id="teacherSearch" class="form-control"   style="padding-block: 4px !important;">
+                <label for="userSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
+                <input type="text" id="userSearch" class="form-control" style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
-            <select id="teacherDepartmentFilter" class="form-control" style="width: 200px;">
+            <select id="userFilter" class="form-control" style="width: 200px;">
                 <option value="">All Departments</option>
                 <?php
-                $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'teacher' ORDER BY department ASC") or die('Error fetching departments');
+                // Fetch distinct departments for the filter
+                $dept_result = mysqli_query($con, "SELECT DISTINCT departments.name AS department FROM user 
+                LEFT JOIN departments ON user.department_id = departments.id 
+                WHERE user.role = 'teacher' ORDER BY department ASC") or die('Error fetching departments');
                 while ($dept_row = mysqli_fetch_array($dept_result)) {
                     $department = htmlspecialchars($dept_row['department']);
                     echo "<option value=\"$department\">$department</option>";
@@ -325,7 +297,7 @@
             </select>
         </div>
 
-        <table class="r-view-table table title1" id="teachersTable">
+        <table class="view-table table title1" id="usersTable">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -334,193 +306,210 @@
                     <th>College</th>
                     <th>Department</th>
                     <th>Phone</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
                 <?php
-                $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'teacher' ORDER BY id ASC") or die('Error fetching teachers');
+                // Fetch teachers along with related college and department names
+                $result = mysqli_query($con, "SELECT user.id, user.name, user.email, user.phone,  colleges.name AS college_name, departments.name AS department_name
+                FROM user
+                LEFT JOIN colleges ON user.college_id = colleges.id
+                LEFT JOIN departments ON user.department_id = departments.id
+                WHERE user.role = 'teacher'
+                ORDER BY user.id ASC") or die('Error fetching teachers');
                 while ($row = mysqli_fetch_array($result)) {
-                    echo '<tr>';
+                    // Check if college and department are null, and replace them with '-'
+                    $college_name = $row['college_name'] ? htmlspecialchars($row['college_name']) : '-';
+                    $department_name = $row['department_name'] ? htmlspecialchars($row['department_name']) : '-';
+
+                    echo '<tr data-id="' . $row['id'] . '">';
                     echo '<td>' . $row['id'] . '</td>';
-                    echo '<td>' . htmlspecialchars($row['name']) . ' ' . htmlspecialchars($row['fatherName']) . '</td>';
+                    echo '<td>' . htmlspecialchars($row['name']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['email']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['college']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['department']) . '</td>';
+                    echo '<td>' . $college_name . '</td>';
+                    echo '<td>' . $department_name . '</td>';
                     echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
+                    echo '<td>
+                            <button 
+                                class="danger-button user-delete" style="padding: 8px 12px" 
+                                data-id="' . $row['id'] . '"
+                            >
+                                <span class="glyphicon glyphicon-trash"></span>
+                            </button>
+                        </td>';
                     echo '</tr>';
                 }
                 ?>
             </tbody>
         </table>
     </div>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('teacherSearch');
-        const departmentFilter = document.getElementById('teacherDepartmentFilter');
-        const rows = document.querySelectorAll('#teachersTable tbody tr');
-
-        function filterTable() {
-            const searchValue = searchInput.value.toLowerCase();
-            const selectedDept = departmentFilter.value.toLowerCase();
-
-            rows.forEach(row => {
-                const name = row.children[1].textContent.toLowerCase();
-                const department = row.children[4].textContent.toLowerCase();
-
-                const matchesSearch = name.includes(searchValue);
-                const matchesDepartment = selectedDept === '' || department === selectedDept;
-
-                row.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
-            });
-        }
-
-        searchInput.addEventListener('keyup', filterTable);
-        departmentFilter.addEventListener('change', filterTable);
-    });
-    </script>
 <?php endif; ?>
 <!-- View Teachers End -->
 
 
-          <?php  
-
-            // Ranking Start
-if (@$_GET['q'] == 3) {
-    $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
-
-    $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
-
-    echo '<div class="section-panel title">';
-    echo '<div class="filter-form-container">';
-
-    // Filter Form
-    echo '<form method="GET" action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" class="form-inline" style="margin-bottom:15px;">
-            <input type="hidden" name="q" value="2">
-            <div class="form-group" style="margin-right:10px;">
-                <label for="filter_college">College:</label>
-                <select name="filter_college" id="filter_college" class="form-control">
-                    <option value="">All Colleges</option>';
-
-    // college options in the dropdown
-    while ($row = mysqli_fetch_array($colleges_result)) {
-        $college = $row['college'];
-        $selected = ($college == $selected_college) ? 'selected' : '';
-        echo '<option value="' . htmlspecialchars($college) . '" ' . $selected . '>' . htmlspecialchars($college) . '</option>';
-    }
-
-    echo '</select>
-          </div>
-          <button type="submit" class="primary-button">Filter</button>
-          <a href="' . htmlspecialchars($_SERVER['PHP_SELF']) . '?q=2" class="btn-container" style="margin-left:5px;"><button class="warn-button" style="padding: 8px 15px;">Reset</button></a>
-          </form> </div>';
-
-    $query = "SELECT r.email, r.score
-              FROM rank r
-              ORDER BY r.score DESC";
-
-    if (!empty($selected_college)) {
-        $query = "SELECT r.email, r.score
-                  FROM rank r, user u
-                  WHERE r.email = u.email
-                  AND u.college='" . mysqli_real_escape_string($con, $selected_college) . "'
-                  ORDER BY r.score DESC";
-    }
-
-    $q = mysqli_query($con, $query) or die('Error223');
-
-    // Ranking table
-    echo '<table class="table t-ranking-table table-striped title1">
-            <tr style="color:#3d52a0;">
-            <td><b>Rank</b></td><td>
-            <b>Name</b></td>
-            <td><b>Gender</b></td>
-            <td><b>College</b></td>
-            <td><b>Score</b></td>
-            </tr>';
-
-    $c = 0;
-    $c = 0;
-while ($row = mysqli_fetch_array($q)) {
-    $e = $row['email'];
-    $s = $row['score'];
-
-    // Get user data based on the email
-    $q12 = mysqli_query($con, "SELECT * FROM user WHERE email='$e' LIMIT 1");
-    
-    if ($user_row = mysqli_fetch_array($q12)) {
-        $name = !empty($user_row['name']) ? $user_row['name'] : '-';
-        $gender = !empty($user_row['gender']) ? $user_row['gender'] : '-';
-        $college = !empty($user_row['college']) ? $user_row['college'] : '-';
-
-        $c++;
-        echo '<tr>
-                <td><b>' . $c . '</b></td>
-                <td>' . htmlspecialchars($name) . '</td>
-                <td>' . htmlspecialchars($gender) . '</td>
-                <td>' . htmlspecialchars($college) . '</td>
-                <td>' . htmlspecialchars($s) . '</td>
-              </tr>';
-    }
-}
-
-
-    echo '</table></div>';
-}
-?>
-<!--ranking end-->
-
-
-            <!--add Student-->
+            <!--  Ranking Start -->
+            <?php if (@$_GET['q'] == 3): ?>
             <?php
+            $result = mysqli_query($con, "
+                SELECT 
+                    u.id,
+                    u.name,
+                    u.email,
+                    u.gender,
+                    u.phone,
+                    u.year,
+                    c.name AS college,
+                    d.name AS department,
+                    r.score
+                FROM rank r
+                JOIN user u ON r.email = u.email
+                LEFT JOIN colleges c ON u.college_id = c.id
+                LEFT JOIN departments d ON u.department_id = d.id
+                WHERE u.role = 'student'
+                ORDER BY r.score DESC, r.time ASC
+            ") or die('Error fetching ranking');
+            
+            echo '<div class="section-panel">';
+            ?>
+       <!-- Filters -->
+        <!-- TODO: fix the filtering -->
+<div class="search-table" style="display: flex; justify-content: space-around; margin-bottom: 1rem;">
+    <!-- College Filter -->
+    <select id="collegeFilter" class="form-control" style="width: 200px;">
+        <option value="">All Colleges</option>
+        <?php
+        $college_result = mysqli_query($con, "SELECT name FROM colleges ORDER BY name ASC") or die('Error fetching colleges');
+        while ($row = mysqli_fetch_array($college_result)) {
+            $college = htmlspecialchars($row['name']);
+            echo "<option value=\"$college\">$college</option>";
+        }
+        ?>
+    </select>
+
+    <!-- Department Filter -->
+    <select id="departmentFilter" class="form-control" style="width: 200px;">
+        <option value="">All Departments</option>
+        <?php
+        $dept_result = mysqli_query($con, "SELECT DISTINCT departments.name AS department FROM user 
+            LEFT JOIN departments ON user.department_id = departments.id 
+            WHERE user.role = 'student' ORDER BY department ASC") or die('Error fetching departments');
+        while ($dept_row = mysqli_fetch_array($dept_result)) {
+            $department = htmlspecialchars($dept_row['department']);
+            echo "<option value=\"$department\">$department</option>";
+        }
+        ?>
+    </select>
+</div>
+
+        <?php
+            echo '<table class="rank-table table title1">';
+            echo '<thead><tr style="color: #3d52a0;">
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>College</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Score</th>
+                </tr></thead><tbody>';
+            
+            $rank = 1;
+            while ($row = mysqli_fetch_array($result)) {
+                echo '<tr>';
+                echo '<td>' . $rank++ . '</td>';
+                echo '<td>' . htmlspecialchars($row['name']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['email']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['college'] ?? '-') . '</td>';
+                echo '<td>' . htmlspecialchars($row['department'] ?? '-') . '</td>';
+                echo '<td>' . htmlspecialchars($row['year'] ?? '-') . '</td>';
+                echo '<td>' . $row['score'] . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table></div>';
+            ?>
+            <?php endif; ?>
+            <!-- Ranking End -->            
+
+
+            <!-- Add User -->
+<?php
 if (isset($_GET['q']) && $_GET['q'] == 4) {
+    // Fetch colleges, departments, and sections
+    $colleges = mysqli_query($con, "SELECT * FROM colleges ORDER BY name ASC");
+    $departments = mysqli_query($con, "SELECT * FROM departments ORDER BY name ASC");
+    $sections = mysqli_query($con, "SELECT * FROM sections ORDER BY name ASC");
+
+    // Group departments by college
+    $deptMap = [];
+    while ($dept = mysqli_fetch_assoc($departments)) {
+        $deptMap[$dept['college_id']][] = $dept;
+    }
+
+    // Group sections by department
+    $secMap = [];
+    while ($sec = mysqli_fetch_assoc($sections)) {
+        $secMap[$sec['department_id']][] = $sec;
+    }
+
     echo "
     <div class=\"section-panel title\">
         <div class=\"row\">
-            <span class=\"title1 form-title\" style=\"color:#3d52a0; display:flex; justify-content:center; font-size:30px;\">
-                <b>Add Student Details</b>
+            <span class=\"title1\" style=\"color:#3d52a0; display:flex; justify-content:center; font-size:30px;\">
+                <b>Add User Details</b>
             </span>
 
-            <form class=\"form-horizontal title1\" name=\"form\" action=\"update.php?q=addStudent\" method=\"POST\" style=\"padding:20px; align-items:center;\">
-                <fieldset class=\"add-student-form\">
-
-                    <!-- Student Name -->
+            <form class=\"form-horizontal title1\" action=\"update.php?q=addUser\" method=\"POST\" style=\"padding:20px;\">
+                <fieldset class=\"add-user-form\">
+                    <!-- Role -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"name\">Name:</label>
+                        <label class=\"col-md-12\">Role:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"name\" name=\"name\" class=\"form-control input-md\" type=\"text\" placeholder=\"Enter name\" required>
+                            <select name=\"role\" class=\"form-control\" required>
+                                <option value=\"\">Select Role</option>
+                                <option value=\"student\">Student</option>
+                                <option value=\"teacher\">Teacher</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Fathers Name -->
+                    <!-- Name -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"fatherName\">Father Name:</label>
+                        <label class=\"col-md-12\">Name:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"fatherName\" name=\"fatherName\" placeholder=\"Enter father name\" class=\"form-control input-md\" type=\"text\">
+                            <input name=\"name\" class=\"form-control\" type=\"text\" required>
+                        </div>
+                    </div>
+
+                    <!-- Father's Name -->
+                    <div class=\"form-group\">
+                        <label class=\"col-md-12\">Father Name:</label>
+                        <div class=\"col-md-12\">
+                            <input name=\"fatherName\" class=\"form-control\" type=\"text\">
                         </div>
                     </div>
 
                     <!-- Email -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"email\">Email:</label>
+                        <label class=\"col-md-12\">Email:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"email\" name=\"email\" placeholder=\"Enter email address\" class=\"form-control input-md\" type=\"email\" required>
+                            <input name=\"email\" class=\"form-control\" type=\"email\" required>
                         </div>
                     </div>
 
                     <!-- Password -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"password\">Password:</label>
+                        <label class=\"col-md-12\">Password:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"password\" name=\"password\" placeholder=\"Enter password\" class=\"form-control input-md\" type=\"password\" maxlength=\"18\" required>
+                            <input name=\"password\" class=\"form-control\" type=\"password\" required>
                         </div>
                     </div>
 
                     <!-- Gender -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"gender\">Gender:</label>
+                        <label class=\"col-md-12\">Gender:</label>
                         <div class=\"col-md-12\">
-                            <select id=\"gender\" name=\"gender\" class=\"form-control input-md\" required>
+                            <select name=\"gender\" class=\"form-control\" required>
                                 <option value=\"\">Select Gender</option>
                                 <option value=\"M\">Male</option>
                                 <option value=\"F\">Female</option>
@@ -530,43 +519,104 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
 
                     <!-- College -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"college\">College:</label>
+                        <label class=\"col-md-12\">College:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"college\" name=\"college\" placeholder=\"Enter college name\" class=\"form-control input-md\" type=\"text\">
+                            <select id=\"college\" name=\"college_id\" class=\"form-control\" required>
+                                <option value=\"\">Select College</option>";
+                                while ($college = mysqli_fetch_assoc($colleges)) {
+                                    echo "<option value=\"{$college['id']}\">{$college['name']}</option>";
+                                }
+                            echo "
+                            </select>
                         </div>
                     </div>
 
                     <!-- Department -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"department\">Department:</label>
+                        <label class=\"col-md-12\">Department: <span style=\"font-size: 12px; color:#3d52a0\">(Required if student)</span></label>
                         <div class=\"col-md-12\">
-                            <input id=\"department\" name=\"department\" placeholder=\"Enter department name\" class=\"form-control input-md\" type=\"text\" required>
+                            <select id=\"department\" name=\"department_id\" class=\"form-control\" disabled>
+                                <option value=\"\">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section -->
+                    <div class=\"form-group\">
+                        <label class=\"col-md-12\">Section: <span style=\"font-size: 12px; color:#3d52a0\">(Required if student)</span></label>
+                        <div class=\"col-md-12\">
+                            <select id=\"section\" name=\"section_id\" class=\"form-control\" disabled>
+                                <option value=\"\">Select Section</option>
+                            </select>
                         </div>
                     </div>
 
                     <!-- Phone -->
                     <div class=\"form-group\">
-                        <label class=\"col-md-12\" for=\"phone\">Phone Number:</label>
+                        <label class=\"col-md-12\">Phone Number:</label>
                         <div class=\"col-md-12\">
-                            <input id=\"phone\" name=\"phone\" placeholder=\"Enter phone number\" class=\"form-control input-md\" type=\"text\">
+                            <input name=\"phone\" class=\"form-control\" type=\"text\">
                         </div>
                     </div>
 
-                    <!-- Submit Button -->
-                    <div class=\"form-group\" style=\"justify-content:center; margin-top:40px;\">
+                    <!-- Submit -->
+                    <div class=\"form-group\" style=\"margin-top:40px;\">
                         <div class=\"col-md-12 text-center\">
                             <button type=\"submit\" class=\"primary-button\" style=\"font-size:20px;\">Submit</button>
                         </div>
                     </div>
-
                 </fieldset>
             </form>
         </div>
-    </div>";
+    </div>
 
+    <script>
+        // Add user
+    const deptMap = " . json_encode($deptMap) . ";
+        const secMap = " . json_encode($secMap) . ";
+
+        document.getElementById('college').addEventListener('change', function () {
+            const collegeId = this.value;
+            const deptSelect = document.getElementById('department');
+            deptSelect.innerHTML = '<option value=\"\">Select Department</option>';
+            deptSelect.disabled = true;
+
+            if (deptMap[collegeId]) {
+                deptMap[collegeId].forEach(dept => {
+                    const option = document.createElement('option');
+                    option.value = dept.id;
+                    option.textContent = dept.name;
+                    deptSelect.appendChild(option);
+                });
+                deptSelect.disabled = false;
+            }
+
+            document.getElementById('section').innerHTML = '<option value=\"\">Select Section</option>';
+            document.getElementById('section').disabled = true;
+        });
+
+        document.getElementById('department').addEventListener('change', function () {
+            const deptId = this.value;
+            const secSelect = document.getElementById('section');
+            secSelect.innerHTML = '<option value=\"\">Select Section</option>';
+            secSelect.disabled = true;
+
+            if (secMap[deptId]) {
+                secMap[deptId].forEach(sec => {
+                    const option = document.createElement('option');
+                    option.value = sec.id;
+                    option.textContent = sec.name;
+                    secSelect.appendChild(option);
+                });
+                secSelect.disabled = false;
+            }
+        });
+    </script>
+    ";
 }
 ?>
-<!-- End Add Student -->
+
+<!-- End Add User -->
 
             
 
@@ -637,6 +687,6 @@ if (isset($_GET['q']) && $_GET['q'] == 4) {
 
     </script>
     <script src="js/jquery-3.7.1.slim.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

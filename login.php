@@ -9,8 +9,7 @@ include_once 'dbConnection.php';
 $email = $_POST['email'];
 $password = $_POST['password'];
 
-$query = "SELECT name, role FROM user WHERE email = '$email' AND password = '$password'";
-
+$query = "SELECT id, name, role FROM user WHERE email = '$email' AND password = '$password'";
 $result = mysqli_query($con, $query);
 
 if (!$result) {
@@ -22,9 +21,11 @@ $count = mysqli_num_rows($result);
 
 if ($count === 1) {
     $row = mysqli_fetch_assoc($result);
+    $id = $row['id'];
     $name = $row['name'];
     $role = $row['role']; 
 
+    $_SESSION["id"] = $id; // ✅ Add this
     $_SESSION["name"] = $name;
     $_SESSION["key"] = 'prasanth123';
     $_SESSION["email"] = $email;
@@ -36,7 +37,7 @@ if ($count === 1) {
         $redirect = 'teacher.php?q=0';
     } else if ($role === 'header') {
         $redirect = 'header.php?q=0';
-    }else if ($role === 'admin') {
+    } else if ($role === 'admin') {
         $redirect = 'admin.php?q=0';
     } else {
         echo json_encode(['success' => false, 'message' => 'Invalid user role.']);
@@ -48,6 +49,4 @@ if ($count === 1) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Wrong email or password.']);
 }
-
-exit;
 ?>

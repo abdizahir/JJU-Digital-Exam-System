@@ -25,8 +25,10 @@
         exit();
     }
 
+    $id  = $_SESSION['id'];
     $name  = $_SESSION['name'];
     $email = $_SESSION['email'];
+    $role = $_SESSION['role'];
     ?>
     <nav class="navbar navbar-fixed-top">
         <div class="main-header">
@@ -61,20 +63,20 @@
                                     <span class="sr-only">(current)</span>
                                 </a>
                             </li>
-                            <li <?php if(@$_GET['q']==6) echo'class="active"'; ?>>
-                                <a href="teacher.php?q=6">
+                            <li <?php if(@$_GET['q']==1) echo'class="active"'; ?>>
+                                <a href="teacher.php?q=1">
                                     <span class="glyphicon glyphicon-user bigger-icons" aria-hidden="true"></span>
-                                    <div class="sidenav-txt side-nav-text">&nbsp;View Students</div>
+                                    <div class="sidenav-txt side-nav-text">&nbsp;Students</div>
                                 </a>
                             </li>
-                        <li <?php if(@$_GET['q']==1) echo'class="active"'; ?>>
-                            <a href="teacher.php?q=1">
+                        <li <?php if(@$_GET['q']==2) echo'class="active"'; ?>>
+                            <a href="teacher.php?q=2">
                                 <span class="glyphicon glyphicon-star bigger-icons" aria-hidden="true"></span>
                                 <div class="sidenav-txt side-nav-text">&nbsp;Scores</div>
                             </a>
                         </li>  
-                        <li <?php if(@$_GET['q']==2) echo'class="active"'; ?>>
-                            <a href="teacher.php?q=2">
+                        <li <?php if(@$_GET['q']==3) echo'class="active"'; ?>>
+                            <a href="teacher.php?q=3">
                                 <span class="glyphicon glyphicon-stats bigger-icons" aria-hidden="true"></span>
                                 <div class="sidenav-txt side-nav-text">&nbsp;Ranking</div>
                             </a>
@@ -110,9 +112,20 @@
     <div class="row">
         <div class="col-md-12">
             <!-- home Start -->
-<?php
+            <?php
 if (@$_GET['q'] == 0) {
-    $result = mysqli_query($con, "SELECT * FROM exam WHERE email='$email' ORDER BY date DESC") or die('Error');
+    $userId = $_SESSION['id']; // Ensure session contains the logged-in user's ID
+
+    // Check if teacher has any exams
+    $check = mysqli_query($con, "SELECT COUNT(*) as total FROM exam WHERE creator_id = $userId") or die('Error checking exams');
+    $check_row = mysqli_fetch_assoc($check);
+
+    if ($check_row['total'] == 0) {
+        echo '<div class="section-panel"><p style="color:#999; display:flex; justify-content:center; font-style:italic;">You haven’t created any exams yet.</p></div>';
+    } else {
+        // Fetch exams created by this teacher
+        $result = mysqli_query($con, "SELECT * FROM exam WHERE creator_id = $userId ORDER BY date DESC") or die('Error');
+
 ?>
     <div class="section-panel">
         <table class="t-exam-table table title1" style="border:none">
@@ -130,16 +143,19 @@ if (@$_GET['q'] == 0) {
                 <?php
                 $c = 1;
                 while ($row = mysqli_fetch_array($result)) {
-                    $title = $row['title'];
-                    $total = $row['total'];
-                    $mark = $row['mark'];
-                    $time = $row['time'];
                     $eid = $row['eid'];
+                    $title = htmlspecialchars($row['title']);
+                    $total = (int)$row['total'];
+                    $mark = (int)$row['mark'];
+                    $time = (int)$row['time'];
 
-                    $q12 = mysqli_query($con, "SELECT score FROM history WHERE eid='$eid' AND email='$email'") or die('Error98');
+                    // Check if current user attempted this exam
+                    $user_email = $_SESSION['email'];
+                    $q12 = mysqli_query($con, "SELECT score FROM history WHERE eid = '$eid' AND email = '$user_email'") or die('Error98');
                     $rowcount = mysqli_num_rows($q12);
 
-                    $student_query = mysqli_query($con, "SELECT COUNT(DISTINCT email) AS student_count FROM history WHERE eid='$eid'") or die('Error99');
+                    // Count distinct students who attempted this exam
+                    $student_query = mysqli_query($con, "SELECT COUNT(DISTINCT email) AS student_count FROM history WHERE eid = '$eid'") or die('Error99');
                     $student_data = mysqli_fetch_array($student_query);
                     $student_count = $student_data['student_count'];
                 ?>
@@ -147,9 +163,9 @@ if (@$_GET['q'] == 0) {
                         <td><?php echo $c++; ?></td>
                         <td>
                             <?php echo $title; ?>
-                            <?php if ($rowcount != 0) { ?>
+                            <?php if ($rowcount != 0): ?>
                                 <span title="This exam has already been solved by you" class="glyphicon glyphicon-ok" aria-hidden="true"></span>
-                            <?php } ?>
+                            <?php endif; ?>
                         </td>
                         <td><?php echo $total; ?></td>
                         <td><?php echo ($mark * $total); ?></td>
@@ -163,26 +179,29 @@ if (@$_GET['q'] == 0) {
         </table>
     </div>
 <?php
+    }
 }
 ?>
 <!-- Home End -->
 
+
 <!-- View Students Start -->
-<?php if (@$_GET['q'] == 6): ?>
+<?php if (@$_GET['q'] == 1): ?>
     <div class="section-panel">
         <div class="search-table">
-            <!-- Search Input (left) -->
             <div style="position: relative;">
-                <label for="studentSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
-                <input type="text" id="studentSearch" class="form-control"   style="padding-block: 4px !important;">
+                <label for="userSearch" style="position: absolute; top: -25%; left: 8%; margin: 0; font-size: 12px; background-color: white;">Search by Name:</label>
+                <input type="text" id="userSearch" class="form-control" style="padding-block: 4px !important;">
             </div>
             
             <!-- Filter Select (right) -->
-            <select id="departmentFilter" class="form-control" style="width: 200px;">
+            <select id="userFilter" class="form-control" style="width: 200px;">
                 <option value="">All Departments</option>
                 <?php
                 // Fetch distinct departments for the filter
-                $dept_result = mysqli_query($con, "SELECT DISTINCT department FROM user WHERE role = 'student' ORDER BY department ASC") or die('Error fetching departments');
+                $dept_result = mysqli_query($con, "SELECT DISTINCT departments.name AS department FROM user 
+                LEFT JOIN departments ON user.department_id = departments.id 
+                WHERE user.role = 'student' ORDER BY department ASC") or die('Error fetching departments');
                 while ($dept_row = mysqli_fetch_array($dept_result)) {
                     $department = htmlspecialchars($dept_row['department']);
                     echo "<option value=\"$department\">$department</option>";
@@ -191,7 +210,7 @@ if (@$_GET['q'] == 0) {
             </select>
         </div>
 
-        <table class="r-view-table table title1" id="studentsTable">
+        <table class="view-table table title1" id="usersTable">
             <thead>
                 <tr style="color: #3d52a0;">
                     <th>ID</th>
@@ -204,16 +223,24 @@ if (@$_GET['q'] == 0) {
             </thead>
             <tbody>
                 <?php
-                $result = mysqli_query($con, "SELECT * FROM user WHERE role = 'student' ORDER BY id ASC") or die('Error fetching students');
+                // Fetch students along with related college and department names
+                $result = mysqli_query($con, "SELECT user.id, user.name, user.email, user.phone,  colleges.name AS college_name, departments.name AS department_name
+                FROM user
+                LEFT JOIN colleges ON user.college_id = colleges.id
+                LEFT JOIN departments ON user.department_id = departments.id
+                WHERE user.role = 'student'
+                ORDER BY user.id ASC") or die('Error fetching students');
                 while ($row = mysqli_fetch_array($result)) {
-                    $name = htmlspecialchars($row['name']);
-                $fatherName = isset($row['fatherName']) && $row['fatherName'] !== null ? ' ' . htmlspecialchars($row['fatherName']) : '';
-                    echo '<tr>';
+                    // Check if college and department are null, and replace them with '-'
+                    $college_name = $row['college_name'] ? htmlspecialchars($row['college_name']) : '-';
+                    $department_name = $row['department_name'] ? htmlspecialchars($row['department_name']) : '-';
+
+                    echo '<tr data-id="' . $row['id'] . '">';
                     echo '<td>' . $row['id'] . '</td>';
-                    echo '<td>' . $name . $fatherName . '</td>';
+                    echo '<td>' . htmlspecialchars($row['name']) . '</td>';
                     echo '<td>' . htmlspecialchars($row['email']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['college']) . '</td>';
-                    echo '<td>' . htmlspecialchars($row['department']) . '</td>';
+                    echo '<td>' . $college_name . '</td>';
+                    echo '<td>' . $department_name . '</td>';
                     echo '<td>' . htmlspecialchars($row['phone']) . '</td>';
                     echo '</tr>';
                 }
@@ -221,32 +248,6 @@ if (@$_GET['q'] == 0) {
             </tbody>
         </table>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('studentSearch');
-            const departmentFilter = document.getElementById('departmentFilter');
-            const rows = document.querySelectorAll('#studentsTable tbody tr');
-
-            function filterTable() {
-                const searchValue = searchInput.value.toLowerCase();
-                const selectedDept = departmentFilter.value.toLowerCase();
-
-                rows.forEach(row => {
-                    const name = row.children[1].textContent.toLowerCase();
-                    const department = row.children[4].textContent.toLowerCase();
-                    
-                    const matchesSearch = name.includes(searchValue);
-                    const matchesDepartment = selectedDept === '' || department === selectedDept;
-
-                    row.style.display = (matchesSearch && matchesDepartment) ? '' : 'none';
-                });
-            }
-
-            searchInput.addEventListener('keyup', filterTable);
-            departmentFilter.addEventListener('change', filterTable);
-        });
-    </script>
 <?php endif; ?>
 <!-- View Students End -->
 
@@ -254,207 +255,220 @@ if (@$_GET['q'] == 0) {
 
 
             <!--  Score Details Start -->
-<?php
-if (@$_GET['q'] == 1) {
-
-    $titles_result = mysqli_query($con, "SELECT DISTINCT title FROM exam WHERE email='$email'") or die('Error fetching titles');
-    $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
-
-    $selected_title = isset($_GET['filter_title']) ? $_GET['filter_title'] : '';
-    $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
-
-    ?>
-    <div class="section-panel s-score-table title">
-
-        <!-- Filter Form -->
-        <div class="filter-form-container">
-            <form method="GET" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" class="form-inline" style="margin-bottom:15px;">
-                <input type="hidden" name="q" value="1">
-                <div class="form-group" style="margin-right:10px;">
-                    <label for="filter_title">Exam Title:</label>
-                    <select name="filter_title" id="filter_title" class="form-control">
-                        <option value="">All Titles</option>
-                        <?php while ($row = mysqli_fetch_array($titles_result)) {
-                            $title = $row['title'];
-                            $selected = ($title == $selected_title) ? 'selected' : '';
-                            echo '<option value="' . htmlspecialchars($title) . '" ' . $selected . '>' . htmlspecialchars($title) . '</option>';
-                        } ?>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-right:10px;">
-                    <label for="filter_college">College:</label>
-                    <select name="filter_college" id="filter_college" class="form-control">
-                        <option value="">All Colleges</option>
-                        <?php while ($row = mysqli_fetch_array($colleges_result)) {
-                            $college = $row['college'];
-                            $selected = ($college == $selected_college) ? 'selected' : '';
-                            echo '<option value="' . htmlspecialchars($college) . '" ' . $selected . '>' . htmlspecialchars($college) . '</option>';
-                        } ?>
-                    </select>
-                </div>
-                <button type="submit" class="primary-button">Filter</button>
-                <a href="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>?q=1" class="warn-button btn-container" style="margin-left:5px;">
-    Reset
-</a>
-
-            </form>
-        </div>
-
-        <?php
-        // Base query
-        $query = "SELECT DISTINCT q.title, u.name, u.college, h.score, h.date 
-                  FROM user u, history h, exam q 
-                  WHERE q.email='$email' 
-                  AND q.eid=h.eid 
-                  AND h.email=u.email";
-
-        // Apply filters
-        if (!empty($selected_title)) {
-            $query .= " AND q.title='" . mysqli_real_escape_string($con, $selected_title) . "'";
-        }
-        if (!empty($selected_college)) {
-            $query .= " AND u.college='" . mysqli_real_escape_string($con, $selected_college) . "'";
-        }
-
-        $query .= " ORDER BY q.eid DESC";
-
-        $q = mysqli_query($con, $query) or die('Error197');
-        ?>
-
-        <table class="table t-score-table table-striped title1">
-            <tr style="color:#3d52a0">
-                <td><b>No.</b></td>
-                <td><b>Title</b></td>
-                <td><b>Name</b></td>
-                <td><b>College</b></td>
-                <td><b>Score</b></td>
-                <td><b>Date</b></td>
-            </tr>
-
             <?php
-            $c = 1;
-            while ($row = mysqli_fetch_array($q)) {
-                $title = $row['title'];
-                $name = $row['name'];
-                $college = $row['college'];
-                $score = $row['score'];
-                $date = $row['date'];
-                ?>
-                <tr>
-                    <td><?= $c++ ?></td>
-                    <td><?= htmlspecialchars($title) ?></td>
-                    <td><?= htmlspecialchars($name) ?></td>
-                    <td><?= htmlspecialchars($college) ?></td>
-                    <td><?= htmlspecialchars($score) ?></td>
-                    <td><?= htmlspecialchars($date) ?></td>
-                </tr>
-            <?php } ?>
-
-        </table>
-    </div>
-    <?php
-}
-// Score Details End
-
-            
-
-            // Ranking Start
 if (@$_GET['q'] == 2) {
-    $colleges_result = mysqli_query($con, "SELECT DISTINCT college FROM user") or die('Error fetching colleges');
+    $userId = $_SESSION['id']; // Assuming the logged-in teacher's ID is stored here
 
-    $selected_college = isset($_GET['filter_college']) ? $_GET['filter_college'] : '';
+    // Get distinct titles for exams created by this teacher
+    $titles_result = mysqli_query($con, "
+        SELECT DISTINCT title FROM exam WHERE creator_id = $userId
+    ") or die('Error fetching titles');
 
-    echo '<div class="section-panel title">';
-    echo '<div class="filter-form-container">';
+    // Get distinct colleges
+    $colleges_result = mysqli_query($con, "
+        SELECT DISTINCT c.name AS college
+        FROM user u
+        JOIN colleges c ON u.college_id = c.id
+    ") or die('Error fetching colleges');
 
-    // Filter Form
-    echo '<form method="GET" action="' . htmlspecialchars($_SERVER['PHP_SELF']) . '" class="form-inline" style="margin-bottom:15px;">
+    $selected_title = $_GET['filter_title'] ?? '';
+    $selected_college = $_GET['filter_college'] ?? '';
+?>
+<div class="section-panel s-score-table title">
+
+    <!-- Filter Form -->
+    <div class="filter-form-container">
+        <form method="GET" action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" class="form-inline" style="margin-bottom:15px;">
             <input type="hidden" name="q" value="2">
+            <div class="form-group" style="margin-right:10px;">
+                <label for="filter_title">Exam Title:</label>
+                <select name="filter_title" id="filter_title" class="form-control">
+                    <option value="">All Titles</option>
+                    <?php while ($row = mysqli_fetch_array($titles_result)) {
+                        $title = $row['title'];
+                        $selected = ($title == $selected_title) ? 'selected' : '';
+                        echo "<option value=\"" . htmlspecialchars($title) . "\" $selected>" . htmlspecialchars($title) . "</option>";
+                    } ?>
+                </select>
+            </div>
+
             <div class="form-group" style="margin-right:10px;">
                 <label for="filter_college">College:</label>
                 <select name="filter_college" id="filter_college" class="form-control">
-                    <option value="">All Colleges</option>';
+                    <option value="">All Colleges</option>
+                    <?php while ($row = mysqli_fetch_array($colleges_result)) {
+                        $college = $row['college'];
+                        $selected = ($college == $selected_college) ? 'selected' : '';
+                        echo "<option value=\"" . htmlspecialchars($college) . "\" $selected>" . htmlspecialchars($college) . "</option>";
+                    } ?>
+                </select>
+            </div>
 
-    // college options in the dropdown
-    while ($row = mysqli_fetch_array($colleges_result)) {
-        $college = $row['college'];
-        $selected = ($college == $selected_college) ? 'selected' : '';
-        echo '<option value="' . htmlspecialchars($college) . '" ' . $selected . '>' . htmlspecialchars($college) . '</option>';
+            <button type="submit" class="primary-button">Filter</button>
+            <a href="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>?q=2" class="warn-button btn-container" style="margin-left:5px;">Reset</a>
+        </form>
+    </div>
+
+    <?php
+    // Build the score query with proper joins
+    $query = "
+        SELECT e.title, u.name, c.name AS college, h.score, h.date
+        FROM history h
+        JOIN user u ON h.email = u.email
+        LEFT JOIN colleges c ON u.college_id = c.id
+        JOIN exam e ON h.eid = e.eid
+        WHERE e.creator_id = $userId
+    ";
+
+    if (!empty($selected_title)) {
+        $query .= " AND e.title = '" . mysqli_real_escape_string($con, $selected_title) . "'";
     }
-
-    echo '</select>
-          </div>
-          <button type="submit" class="primary-button">Filter</button>
-          <a href="' . htmlspecialchars($_SERVER['PHP_SELF']) . '?q=2" class="btn-container" style="margin-left:5px;"><button class="warn-button" style="padding: 8px 15px;">Reset</button></a>
-          </form> </div>';
-
-    $query = "SELECT r.email, r.score
-              FROM rank r
-              ORDER BY r.score DESC";
 
     if (!empty($selected_college)) {
-        $query = "SELECT r.email, r.score
-                  FROM rank r, user u
-                  WHERE r.email = u.email
-                  AND u.college='" . mysqli_real_escape_string($con, $selected_college) . "'
-                  ORDER BY r.score DESC";
+        $query .= " AND c.name = '" . mysqli_real_escape_string($con, $selected_college) . "'";
     }
 
-    $q = mysqli_query($con, $query) or die('Error223');
+    $query .= " ORDER BY h.date DESC";
 
-    // Ranking table
-    echo '<table class="table t-ranking-table table-striped title1">
-            <tr style="color:#3d52a0;">
-            <td><b>Rank</b></td><td>
-            <b>Name</b></td>
-            <td><b>Gender</b></td>
-            <td><b>College</b></td>
-            <td><b>Score</b></td>
-            </tr>';
+    $q = mysqli_query($con, $query) or die('Error executing query');
+    ?>
 
-    $c = 0;
-    while ($row = mysqli_fetch_array($q)) {
-        $e = $row['email'];
-        $s = $row['score'];
+    <table class="table t-score-table table-striped title1">
+        <tr style="color:#3d52a0">
+            <th>No.</th>
+            <th>Title</th>
+            <th>Name</th>
+            <th>College</th>
+            <th>Score</th>
+            <th>Date</th>
+        </tr>
 
-        // Get user data based on the email
-        $q12 = mysqli_query($con, "SELECT * FROM user WHERE email='$e'") or die('Error231');
-        while ($user_row = mysqli_fetch_array($q12)) {
-            $name = $user_row['name'];
-            $gender = $user_row['gender'];
-            $college = $user_row['college'];
+        <?php
+        $c = 1;
+        while ($row = mysqli_fetch_array($q)) {
+            echo "<tr>
+                <td>" . $c++ . "</td>
+                <td>" . htmlspecialchars($row['title']) . "</td>
+                <td>" . htmlspecialchars($row['name']) . "</td>
+                <td>" . htmlspecialchars($row['college'] ?? '-') . "</td>
+                <td>" . htmlspecialchars($row['score']) . "</td>
+                <td>" . htmlspecialchars($row['date']) . "</td>
+            </tr>";
         }
+        ?>
+    </table>
+</div>
+<?php } ?>
 
-        $c++;
-        echo '<tr>
-                <td><b>' . $c . '</b></td>
-                <td>' . htmlspecialchars($name) . '</td>
-                <td>' . htmlspecialchars($gender) . '</td>
-                <td>' . htmlspecialchars($college) . '</td>
-                <td>' . htmlspecialchars($s) . '</td>
-              </tr>';
-    }
+        <!-- // Score Details End -->
 
-    echo '</table></div>';
-}
-// Ranking End
+            
 
-
-            ?>
-            <!--ranking end-->
-
+            <!--  Ranking Start -->
+            <?php if (@$_GET['q'] == 3): ?>
             <?php
+            $result = mysqli_query($con, "
+                SELECT 
+                    u.id,
+                    u.name,
+                    u.email,
+                    u.gender,
+                    u.phone,
+                    u.year,
+                    c.name AS college,
+                    d.name AS department,
+                    r.score
+                FROM rank r
+                JOIN user u ON r.email = u.email
+                LEFT JOIN colleges c ON u.college_id = c.id
+                LEFT JOIN departments d ON u.department_id = d.id
+                WHERE u.role = 'student'
+                ORDER BY r.score DESC, r.time ASC
+            ") or die('Error fetching ranking');
+            
+            echo '<div class="section-panel">';
+            ?>
+       <!-- Filters -->
+        <!-- TODO: fix the filtering -->
+<div class="search-table" style="display: flex; justify-content: space-around; margin-bottom: 1rem;">
+    <!-- College Filter -->
+    <select id="collegeFilter" class="form-control" style="width: 200px;">
+        <option value="">All Colleges</option>
+        <?php
+        $college_result = mysqli_query($con, "SELECT name FROM colleges ORDER BY name ASC") or die('Error fetching colleges');
+        while ($row = mysqli_fetch_array($college_result)) {
+            $college = htmlspecialchars($row['name']);
+            echo "<option value=\"$college\">$college</option>";
+        }
+        ?>
+    </select>
+
+    <!-- Department Filter -->
+    <select id="departmentFilter" class="form-control" style="width: 200px;">
+        <option value="">All Departments</option>
+        <?php
+        $dept_result = mysqli_query($con, "SELECT DISTINCT departments.name AS department FROM user 
+            LEFT JOIN departments ON user.department_id = departments.id 
+            WHERE user.role = 'student' ORDER BY department ASC") or die('Error fetching departments');
+        while ($dept_row = mysqli_fetch_array($dept_result)) {
+            $department = htmlspecialchars($dept_row['department']);
+            echo "<option value=\"$department\">$department</option>";
+        }
+        ?>
+    </select>
+</div>
+
+        <?php
+            echo '<table class="rank-table table title1">';
+            echo '<thead><tr style="color: #3d52a0;">
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>College</th>
+                    <th>Department</th>
+                    <th>Year</th>
+                    <th>Score</th>
+                </tr></thead><tbody>';
+            
+            $rank = 1;
+            while ($row = mysqli_fetch_array($result)) {
+                echo '<tr>';
+                echo '<td>' . $rank++ . '</td>';
+                echo '<td>' . htmlspecialchars($row['name']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['email']) . '</td>';
+                echo '<td>' . htmlspecialchars($row['college'] ?? '-') . '</td>';
+                echo '<td>' . htmlspecialchars($row['department'] ?? '-') . '</td>';
+                echo '<td>' . htmlspecialchars($row['year'] ?? '-') . '</td>';
+                echo '<td>' . $row['score'] . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table></div>';
+            ?>
+            <?php endif; ?>
+            <!-- Ranking End -->   
+
+
+
+<!-- start add exam 1 -->
+<?php
 if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
-    echo ' 
+
+    $email = $_SESSION['email'];
+    $teacherDept = mysqli_fetch_assoc(
+        mysqli_query($con, "SELECT department_id FROM user WHERE email = '$email'")
+    );
+    $department_id = $teacherDept['department_id'] ?? null;
+
+    echo '
     <div class="section-panel title">
         <div class="row">
             <span class="title1 form-title" style="color:#3d52a0; display:flex; justify-content:center; font-size:30px;">
                 <b>Enter Exam Details</b>
             </span>
-            
+
             <form class="form-horizontal title1" name="form" action="update.php?q=addExam" style="padding:20px; align-items:center;" method="POST">
                 <fieldset class="add-exam-form">
-                
+
                     <!-- Exam Title -->
                     <div class="form-group">
                         <label class="col-md-12" for="name">Title:</label>
@@ -463,17 +477,19 @@ if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
                         </div>
                     </div>
 
-                    <!-- Department Dropdown -->
+                    <!-- Hidden Department Field -->
+                    <input type="hidden" name="department_id" value="' . htmlspecialchars($department_id) . '">
+
+                    <!-- Year -->
                     <div class="form-group">
-                        <label class="col-md-12" for="department">Department:</label>
+                        <label class="col-md-12" for="year">Year:</label>
                         <div class="col-md-12">
-                            <select id="department" name="department" class="form-control input-md" required>
-                                <option value="">Select Department</option>
-                                <option value="Computer Science">Computer Science</option>
-                                <option value="Electrical Engineering">Electrical Engineering</option>
-                                <option value="Mechanical Engineering">Mechanical Engineering</option>
-                                <option value="Business">Business</option>
-                                <!-- Add more departments as needed -->
+                            <select id="year" name="year" class="form-control input-md" required>
+                                <option value="">Select Year</option>
+                                <option value="1st">1st</option>
+                                <option value="2nd">2nd</option>
+                                <option value="3rd">3rd</option>
+                                <option value="4th">4th</option>
                             </select>
                         </div>
                     </div>
@@ -496,9 +512,9 @@ if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
 
                     <!-- Time Limit -->
                     <div class="form-group">
-                        <label class="col-md-12" for="time">Time Limit:</label>
+                        <label class="col-md-12" for="time">Time Limit (in minutes):</label>
                         <div class="col-md-12">
-                            <input id="time" name="time" placeholder="Enter time limit for test in minute" class="form-control input-md" min="1" type="number" required>
+                            <input id="time" name="time" placeholder="Enter time limit for test in minutes" class="form-control input-md" min="1" type="number" required>
                         </div>
                     </div>
                 </fieldset>
@@ -508,8 +524,8 @@ if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
                     <label class="col-md-12" for="desc">Description:</label>
                     <textarea id="desc" name="desc" rows="8" cols="8" class="form-control" placeholder="Write description here..." required></textarea>
                 </div>
-                
-                <!-- Submit Button -->
+
+                <!-- Submit -->
                 <div class="form-group" style="justify-items:center; margin-top:40px;">
                     <button type="submit" class="primary-button" style="font-size:20px;">Submit</button>
                 </div>
@@ -518,170 +534,127 @@ if (isset($_GET['q']) && $_GET['q'] == 4 && !isset($_GET['step'])) {
     </div>';
 }
 ?>
+<!-- end add exam 1 -->
 
-            <!--add exam end-->
+
+
             <!--add exam step2 start-->
-            <?php
-                if(@$_GET['q']==4 && (@$_GET['step'])==2 ){
-                echo ' 
-                <div class="section-panel row">
-                    <span class="title1" style="color:#3d52a0;display:flex;justify-content:center;font-size:30px;"><b>Enter Question Details</b></span><br /><br />
-                    <div class="col-md-8" style="justify-content:center; width: 100%;">
-                <form class="form-horizontal title1" name="form" action="update.php?q=addqns&n='.@$_GET['n'].'&eid='.@$_GET['eid'].'&ch=4 "  method="POST" style="justify-self:center;width: 70%;">
-                <fieldset>
-                ';
-                
-                for($i=1;$i<=@$_GET['n'];$i++)
-                {
-                echo '<b>Question number&nbsp;'.$i.'&nbsp;:</><br /><!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12 control-label" for="qns'.$i.' "></label>  
-                <div class="col-md-12">
-                <textarea rows="3" cols="5" name="qns'.$i.'" class="form-control" placeholder="Write question number '.$i.' here..."></textarea>  
-                </div>
-                </div>
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12 control-label" for="'.$i.'1"></label>  
-                <div class="col-md-12">
-                <input id="'.$i.'1" name="'.$i.'1" placeholder="Enter option a" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12 control-label" for="'.$i.'2"></label>  
-                <div class="col-md-12">
-                <input id="'.$i.'2" name="'.$i.'2" placeholder="Enter option b" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12 control-label" for="'.$i.'3"></label>  
-                <div class="col-md-12">
-                <input id="'.$i.'3" name="'.$i.'3" placeholder="Enter option c" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
-                <!-- Text input-->
-                <div class="form-group">
-                <label class="col-md-12 control-label" for="'.$i.'4"></label>  
-                <div class="col-md-12">
-                <input id="'.$i.'4" name="'.$i.'4" placeholder="Enter option d" class="form-control input-md" type="text">
-                    
-                </div>
-                </div>
-                <br />
-                <b>Correct answer</b>:<br />
-                <select id="ans'.$i.'" name="ans'.$i.'" placeholder="Choose correct answer " class="form-control input-md dropdown" >
-                <option value="a">Select answer for question '.$i.'</option>
-                <option value="a">option a</option>
-                <option value="b">option b</option>
-                <option value="c">option c</option>
-                <option value="d">option d</option> </select><br /><br />'; 
-                }
-                    
-                echo '
-                <div class="form-group" style="justify-items:center;margin-top:40px">
-                    <button  type="submit" class="primary-button"  style:"font-size:20px">Submit</button>
-                </div>
-
-                </fieldset>
-                </form></div>';
-                }
-                ?><!--add exam step 2 end-->
-            <!--remove exam-->
-            <?php if(@$_GET['q']==5) {
-
-                $result = mysqli_query($con,"SELECT * FROM exam where email='$email' ORDER BY date DESC") or die('Error');
-                echo  '<div class="section-panel">
-                <table class="table t-remove-table title1">
-                    <tr style="color:#3d52a0;">
-                        <td class="remove-1"><b>No.</b></td>
-                        <td><b>Topic</b></td>
-                        <td><b>Total question</b></td>
-                        <td><b>Marks</b></td>
-                        <td><b>Time limit</b></td>
-                        <td></td>
-                    </tr>';
-                $c=1;
-                while($row = mysqli_fetch_array($result)) {
-                    $title = $row['title'];
-                    $total = $row['total'];
-                    $mark = $row['mark'];
-                $time = $row['time'];
-                    $eid = $row['eid'];
-                    echo '<tr><td>'.$c++.'</td><td>'.$title.'</td><td>'.$total.'</td><td>'.$mark*$total.'</td><td>'.$time.'&nbsp;min</td>
-                    <td><b>
-                    <a href="update.php?q=rmExam&eid='.$eid.'" class="pull-right btn-container">
-                    <div class="danger-button"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;<span class="title1"><b>Remove</b></span></div>
-                    </a>
-                    </b></td></tr>';
-                }
-                $c=0;
-                echo '</table></div>';
-            }
-            ?>
-            
+<?php
+if (isset($_GET['q']) && $_GET['q'] == 4 && isset($_GET['step']) && $_GET['step'] == 2) {
+    $n = (int) $_GET['n'];
+    $eid = htmlspecialchars($_GET['eid']);
+    
+    echo ' 
+    <div class="section-panel row">
+        <span class="title1" style="color:#3d52a0;display:flex;justify-content:center;font-size:30px;"><b>Enter Question Details</b></span><br /><br />
+        <div class="col-md-8" style="justify-content:center; width: 100%;">
+        <form class="form-horizontal title1" name="form" action="update.php?q=addqns&n=' . $n . '&eid=' . $eid . '&ch=4" method="POST" style="justify-self:center;width: 70%;">
+        <fieldset>';
+    
+    for ($i = 1; $i <= $n; $i++) {
+        echo '
+        <b>Question number ' . $i . ':</b><br />
+        <div class="form-group">
+            <label class="col-md-12 control-label" for="qns' . $i . '"></label>  
+            <div class="col-md-12">
+                <textarea rows="3" cols="5" name="qns' . $i . '" class="form-control" placeholder="Write question number ' . $i . ' here..." required></textarea>  
+            </div>
         </div>
-    </div>
-</div><!--container closed-->
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-    const sidebar = document.getElementById('sidenav');
-    const button = document.getElementById('sidenav-btn');
-    const elements = document.querySelectorAll('.sidenav-txt');
-    const main = document.getElementById('main');
 
-    // Media query
-    const mediaQuery = window.matchMedia('(min-width: 992px)');
-
-    // Media query change
-    function handleMediaQuery(e) {
-        if (e.matches) {
-            // At least 992px
-            sidebar.classList.add('side-nav-big');
-            sidebar.classList.remove('side-nav-small');
-            button.classList.remove('glyphicon-chevron-right');
-            button.classList.add('glyphicon-chevron-left');
-            elements.forEach(function(element) {
-                element.classList.remove('side-nav-text');
-            });
-            main.classList.add('move-right');
-        } else {
-            // Less than 992px
-            sidebar.classList.remove('side-nav-big');
-            sidebar.classList.add('side-nav-small');
-            button.classList.remove('glyphicon-chevron-left');
-            button.classList.add('glyphicon-chevron-right');
-            elements.forEach(function(element) {
-                element.classList.add('side-nav-text');
-            });
-            main.classList.remove('move-right');
-        }
+        <div class="form-group">
+            <input name="' . $i . '1" placeholder="Enter option a" class="form-control input-md" type="text" required>
+        </div>
+        <div class="form-group">
+            <input name="' . $i . '2" placeholder="Enter option b" class="form-control input-md" type="text" required>
+        </div>
+        <div class="form-group">
+            <input name="' . $i . '3" placeholder="Enter option c" class="form-control input-md" type="text" required>
+        </div>
+        <div class="form-group">
+            <input name="' . $i . '4" placeholder="Enter option d" class="form-control input-md" type="text" required>
+        </div>
+        <br />
+        <b>Correct answer</b>:<br />
+        <select name="ans' . $i . '" class="form-control input-md dropdown" required>
+            <option value="">Select answer for question ' . $i . '</option>
+            <option value="a">Option a</option>
+            <option value="b">Option b</option>
+            <option value="c">Option c</option>
+            <option value="d">Option d</option>
+        </select><br /><br />';
     }
 
-    handleMediaQuery(mediaQuery);
-
-    // Listen for changes in screen size
-    mediaQuery.addListener(handleMediaQuery);
-
-    button.addEventListener('click', function() {
-        sidebar.classList.toggle('side-nav-small');
-        sidebar.classList.toggle('side-nav-big');
-        button.classList.toggle('glyphicon-chevron-right');
-        button.classList.toggle('glyphicon-chevron-left');
-        elements.forEach(function(element) {
-            element.classList.toggle('side-nav-text');
-        });
-        main.classList.toggle('move-right');
-    });
-});
+    echo '
+        <div class="form-group" style="justify-items:center;margin-top:40px">
+            <button type="submit" class="primary-button" style="font-size:20px">Submit</button>
+        </div>
+        </fieldset>
+        </form>
+        </div>
+    </div>';
+}
+?>
+<!--add exam step 2 end-->
 
 
-    </script>
+
+            <!-- Remove Exam -->
+<?php
+if (@$_GET['q'] == 5) {
+
+    // Get current teacher's user ID
+    $email = $_SESSION['email'];
+    $getTeacherQuery = mysqli_query($con, "SELECT id FROM user WHERE email = '$email'") or die('Error fetching teacher ID');
+    $teacher = mysqli_fetch_assoc($getTeacherQuery);
+    $creator_id = $teacher['id'];
+
+    // Get exams created by the teacher
+    $result = mysqli_query($con, "SELECT * FROM exam WHERE creator_id = '$creator_id' ORDER BY date DESC") or die('Error fetching exams');
+
+    echo '<div class="section-panel">
+            <table class="table t-remove-table title1">
+                <tr style="color:#3d52a0;">
+                    <td class="remove-1"><b>No.</b></td>
+                    <td><b>Topic</b></td>
+                    <td><b>Total Questions</b></td>
+                    <td><b>Total Marks</b></td>
+                    <td><b>Time Limit</b></td>
+                    <td></td>
+                </tr>';
+
+    $c = 1;
+    while ($row = mysqli_fetch_array($result)) {
+        $title = $row['title'];
+        $total = $row['total'];
+        $mark = $row['mark'];
+        $time = $row['time'];
+        $eid = $row['eid'];
+
+        echo '<tr>
+                <td>' . $c++ . '</td>
+                <td>' . htmlspecialchars($title) . '</td>
+                <td>' . $total . '</td>
+                <td>' . ($mark * $total) . '</td>
+                <td>' . $time . '&nbsp;min</td>
+                <td>
+                    <a href="update.php?q=rmExam&eid=' . $eid . '" class="pull-right btn-container">
+                        <div class="danger-button">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>&nbsp;
+                            <span class="title1"><b>Remove</b></span>
+                        </div>
+                    </a>
+                </td>
+              </tr>';
+    }
+
+    echo '</table></div>';
+}
+?>
+
+    </div>
+</div><!--container closed-->
+
     <script src="js/jquery-3.7.1.slim.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
